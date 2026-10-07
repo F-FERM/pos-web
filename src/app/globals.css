@@ -55,7 +55,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: #F24DEB;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -81,6 +81,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+   --background: #DDDDDD;
+  --foreground: #000000;
 }
 
 .dark {
@@ -117,12 +119,17 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+
+@theme inline {
+   --font-sans: var(--font-poppins-next), sans-serif;
+}
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    @apply font-sans bg-background text-foreground;
   }
   html {
     @apply font-sans;
