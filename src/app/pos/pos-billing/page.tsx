@@ -1,9 +1,20 @@
 "use client";
 
+import { AddCustomerDialog, CustomerFormData } from "@/src/components/customer-dues/AddCustomeDuesDialog";
 import SearchBar from "@/src/components/common/PosSearchBar";
 import { Button } from "@/src/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
-import { Camera, CircleCheck, Minus, Plus, RotateCcw, ScanBarcode, ShoppingBag, Trash2 } from "lucide-react";
+import {
+  Camera,
+  ChevronDown,
+  CircleCheck,
+  Minus,
+  Plus,
+  RotateCcw,
+  ScanBarcode,
+  ShoppingBag,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 type Product = {
@@ -14,6 +25,8 @@ type Product = {
   quantity: number;
   unit: string;
 };
+
+type PosCustomer = { id: string; name: string; mobile: string };
 
 const PRODUCTS: Product[] = [
   { id: "1", name: "Fortune sunlight Sunflower Oil 1L", category: "Oil & Ghee", price: 109, quantity: 45, unit: "Pac" },
@@ -29,6 +42,31 @@ const PRODUCTS: Product[] = [
   { id: "11", name: "britannia good day", category: "Snakes & Biscuits", price: 30, quantity: 45, unit: "Pac" },
   { id: "12", name: "catch turmeric powder", category: "Spices & Salt", price: 42, quantity: 45, unit: "Pac" },
   { id: "13", name: "Fortune sunlight Sunflower Oil 1L", category: "Combos & Packs", price: 200, quantity: 45, unit: "Pac" },
+  { id: "14", name: "britannia good day", category: "Snakes & Biscuits", price: 30, quantity: 45, unit: "Pac" },
+  { id: "15", name: "catch turmeric powder", category: "Spices & Salt", price: 42, quantity: 45, unit: "Pac" },
+  { id: "16", name: "Fortune sunlight Sunflower Oil 1L", category: "Combos & Packs", price: 200, quantity: 45, unit: "Pac" },
+  { id: "17", name: "britannia good day", category: "Snakes & Biswwwcuits", price: 30, quantity: 45, unit: "Pac" },
+  { id: "18", name: "catch turmeric powder", category: "Spices & Swwwalt", price: 42, quantity: 45, unit: "Pac" },
+  { id: "19", name: "Fortune sunlight Sunflower Oil 1L", category: "Combowwws & Packs", price: 200, quantity: 45, unit: "Pac" },
+  { id: "20", name: "britannia good day", category: "Snakewwws & Biscuits", price: 30, quantity: 45, unit: "Pac" },
+  { id: "21", name: "catch turmeric powder", category: "Spicwwwes & Salt", price: 42, quantity: 45, unit: "Pac" },
+  { id: "22", name: "Fortune sunlight Sunflower Oil 1L", category: "Cowwwmbos & Packs", price: 200, quantity: 45, unit: "Pac" },
+  { id: "23", name: "britannia good day", category: "Snawwwwkes & Biscuits", price: 30, quantity: 45, unit: "Pac" },
+  { id: "24", name: "catch turmeric powder", category: "Spices & Swwwalt", price: 42, quantity: 45, unit: "Pac" },
+  { id: "25", name: "Fortune sunlight Sunflower Oil 1L", category: "Coddddmbos & Packs", price: 200, quantity: 45, unit: "Pac" },
+  { id: "26", name: "britannia good day", category: "Snakes & Bidddscuits", price: 30, quantity: 45, unit: "Pac" },
+  { id: "27", name: "catch turmeric powder", category: "Spices & Svvvalt", price: 42, quantity: 45, unit: "Pac" },
+  { id: "28", name: "Fortune sunlight Sunflower Oil 1L", category: "Combovvvs & Packs", price: 200, quantity: 45, unit: "Pac" },
+  
+];
+
+// Dummy data (replace with your customer API later)
+const CUSTOMERS: PosCustomer[] = [
+  { id: "1", name: "Rahul Sharma", mobile: "9876543210" },
+  { id: "2", name: "Anita Menon", mobile: "9895012345" },
+  { id: "3", name: "Fresh Mart Traders", mobile: "9447788990" },
+  { id: "4", name: "Joseph Thomas", mobile: "9961234567" },
+  { id: "5", name: "Meera Nair", mobile: "9846098460" },
 ];
 
 type CartItem = { product: Product; qty: number };
@@ -52,8 +90,10 @@ export default function PosBillingPage() {
 
   // cart state
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [customerName, setCustomerName] = useState("");
+  const [customers, setCustomers] = useState<PosCustomer[]>(CUSTOMERS);
+  const [customerId, setCustomerId] = useState(""); // "" = walk-in customer
   const [customerPhone, setCustomerPhone] = useState("");
+  const [addCustomerOpen, setAddCustomerOpen] = useState(false);
   const [discountInput, setDiscountInput] = useState("");
   const [taxInput, setTaxInput] = useState("");
   const [paymentMode, setPaymentMode] = useState<PaymentMode>("Cash");
@@ -80,9 +120,29 @@ export default function PosBillingPage() {
 
   const removeItem = (id: string) => setCart((prev) => prev.filter((i) => i.product.id !== id));
 
+  // picking a customer fills in the phone number; walk-in clears it
+  const handleSelectCustomer = (id: string) => {
+    setCustomerId(id);
+    const c = customers.find((x) => x.id === id);
+    setCustomerPhone(c?.mobile ?? "");
+  };
+
+  // new customer from the plus dialog: add to the list and select it
+  const handleCreateCustomer = (data: CustomerFormData) => {
+    const created: PosCustomer = {
+      id: crypto.randomUUID(),
+      name: data.fullName,
+      mobile: data.mobile ?? "",
+    };
+    // TODO: call your create-customer API here
+    setCustomers((prev) => [created, ...prev]);
+    setCustomerId(created.id);
+    setCustomerPhone(created.mobile);
+  };
+
   const resetBill = () => {
     setCart([]);
-    setCustomerName("");
+    setCustomerId("");
     setCustomerPhone("");
     setDiscountInput("");
     setTaxInput("");
@@ -100,6 +160,7 @@ export default function PosBillingPage() {
   const handleCheckout = () => {
     if (cart.length === 0) return;
     // TODO: call your create-sale API here
+    // customer name: customers.find((c) => c.id === customerId)?.name ?? "Walk-in Customer"
     resetBill();
   };
 
@@ -139,14 +200,23 @@ export default function PosBillingPage() {
           </Button>
         </div>
 
-        {/* Category tabs: swipe horizontally on mobile, wrap from sm and up */}
-        <Tabs value={category} onValueChange={setCategory}>
+        {/* Category tabs: one row, scrolls sideways on every screen size */}
+        <Tabs value={category} onValueChange={setCategory} className="min-w-0">
           <TabsList
             variant="pills"
-            className="h-auto w-full flex-nowrap justify-start gap-2 overflow-x-auto bg-transparent p-0 pb-1 [scrollbar-width:none] sm:max-h-[84px] sm:flex-wrap sm:overflow-x-hidden sm:overflow-y-auto sm:[scrollbar-width:thin]"
+            onWheel={(e) => {
+              // mouse wheel scrolls the row sideways on desktop
+              if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+            }}
+            className="h-auto w-full flex-nowrap justify-start gap-2 overflow-x-auto overflow-y-hidden bg-transparent p-0 pb-1 [scrollbar-width:thin]"
           >
             {categories.map((cat) => (
-              <TabsTrigger key={cat} variant="category" value={cat} className="shrink-0">
+              <TabsTrigger
+                key={cat}
+                variant="category"
+                value={cat}
+                className="shrink-0 whitespace-nowrap"
+              >
                 {cat}
               </TabsTrigger>
             ))}
@@ -227,26 +297,48 @@ export default function PosBillingPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2">
+            {/* Customer name dropdown */}
             <label className="flex min-w-0 flex-col gap-1.5 text-[12px] text-[#484848]">
               Customer Name
-              <input
-                type="text"
-                placeholder="Walk-in Customer"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                className={customerInput}
-              />
+              <span className="relative">
+                <select
+                  value={customerId}
+                  onChange={(e) => handleSelectCustomer(e.target.value)}
+                  className={`${customerInput} appearance-none truncate pr-8`}
+                >
+                  <option value="">Customer Name</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-[#848484]" />
+              </span>
             </label>
-            <label className="flex min-w-0 flex-col gap-1.5 text-[12px] text-[#484848]">
-              Phone Number
-              <input
-                type="tel"
-                placeholder="Optional"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                className={customerInput}
-              />
-            </label>
+
+            {/* Phone number + add customer plus button */}
+            <div className="flex min-w-0 flex-col gap-1.5 text-[12px] text-[#484848]">
+              <label htmlFor="pos-customer-phone">Phone Number</label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="pos-customer-phone"
+                  type="tel"
+                  placeholder="Optional"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  className={customerInput}
+                />
+                <button
+                  type="button"
+                  aria-label="Add new customer"
+                  onClick={() => setAddCustomerOpen(true)}
+                  className="flex size-[30px] shrink-0 items-center justify-center rounded-[10px] bg-[#F24DEB] text-white transition-colors hover:bg-[#D93CD2]"
+                >
+                  <Plus className="size-4" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -277,11 +369,21 @@ export default function PosBillingPage() {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
-                  <button type="button" aria-label="Decrease quantity" className={qtyButton} onClick={() => changeQty(product.id, -1)}>
+                  <button
+                    type="button"
+                    aria-label="Decrease quantity"
+                    className={qtyButton}
+                    onClick={() => changeQty(product.id, -1)}
+                  >
                     <Minus className="size-3.5" />
                   </button>
                   <span className="w-4 text-center text-[12px] text-black">{qty}</span>
-                  <button type="button" aria-label="Increase quantity" className={qtyButton} onClick={() => changeQty(product.id, 1)}>
+                  <button
+                    type="button"
+                    aria-label="Increase quantity"
+                    className={qtyButton}
+                    onClick={() => changeQty(product.id, 1)}
+                  >
                     <Plus className="size-3.5" />
                   </button>
                   <button
@@ -382,6 +484,13 @@ export default function PosBillingPage() {
           </Button>
         </div>
       </section>
+
+      {/* Add new customer (opened by the plus button next to the phone number) */}
+      <AddCustomerDialog
+        open={addCustomerOpen}
+        onOpenChange={setAddCustomerOpen}
+        onSubmit={handleCreateCustomer}
+      />
     </div>
   );
 }
