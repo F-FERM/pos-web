@@ -55,7 +55,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #BD29B7;
+  --primary: #F24DEB;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -120,7 +120,9 @@
 }
 
 
-
+@theme inline {
+   --font-sans: var(--font-poppins-next), sans-serif;
+}
 @layer base {
   * {
     @apply border-border outline-ring/50;

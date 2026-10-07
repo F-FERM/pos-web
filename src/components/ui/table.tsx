@@ -1,31 +1,32 @@
 "use client";
 
-import { cn } from "@/src/lib/utils";
 import * as React from "react";
+import { cn } from "@/src/lib/utils";
 
-
+// Card (#EFEFEF) + horizontal scroll area
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className="w-full rounded-[10px] bg-[#EFEFEF] p-3 sm:p-[20px_18px]"
     >
-      <table
-        data-slot="table"
-        className={cn("w-full caption-bottom text-sm", className)}
-        {...props}
-      />
+      <div className="w-full overflow-x-auto">
+        <table
+          data-slot="table"
+          className={cn(
+            "w-full min-w-[640px] border-separate border-spacing-0 font-poppins",
+            className
+          )}
+          {...props}
+        />
+      </div>
     </div>
   );
 }
 
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
-    <thead
-      data-slot="table-header"
-      className={cn("[&_tr]:border-b bg-[#E2E8F0] border-b", className)}
-      {...props}
-    />
+    <thead data-slot="table-header" className={cn(className)} {...props} />
   );
 }
 
@@ -33,7 +34,7 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn("[&_tr:last-child]:border-0", className)}
+      className={cn("[&_tr:last-child_td]:border-b-0", className)}
       {...props}
     />
   );
@@ -41,14 +42,7 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
 
 function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   return (
-    <tfoot
-      data-slot="table-footer"
-      className={cn(
-        "bg-muted/50 border-t font-medium [&>tr]:last:border-b-0",
-        className
-      )}
-      {...props}
-    />
+    <tfoot data-slot="table-footer" className={cn(className)} {...props} />
   );
 }
 
@@ -56,34 +50,35 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
     <tr
       data-slot="table-row"
-      className={cn(
-        "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
-        className
-      )}
+      className={cn("transition-colors hover:bg-[#E6E6E6]", className)}
       {...props}
     />
   );
 }
 
+// Header cell: the grey bar (#D9D9D9) is built from the cells so the
+// 5px rounded corners work with border-separate.
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       data-slot="table-head"
       className={cn(
-        "text-foreground h-10 px-1 text-left align-middle  whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] text-sm sm:text-[16px] font-semibold py-2 sm:py-3 ",
+        "h-[38px] bg-[#D9D9D9] px-[15px] py-1 text-center align-middle",
+        "font-poppins text-[12px] font-normal uppercase leading-[100%] tracking-[0%] text-[#848484]",
+        "first:rounded-l-[5px] last:rounded-r-[5px]",
         className
       )}
       {...props}
     />
   );
 }
-
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       data-slot="table-cell"
       className={cn(
-        "p-1 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] sm:py-2 text-sm",
+        "border-b border-[#D9D9D9] px-[15px] py-2.5 text-center align-middle",
+        "font-poppins text-[12px] font-normal leading-[100%] text-[#484848]",
         className
       )}
       {...props}
@@ -98,9 +93,34 @@ function TableCaption({
   return (
     <caption
       data-slot="table-caption"
-      className={cn("text-muted-foreground mt-4 text-sm", className)}
+      className={cn("mt-3 text-[10px] text-[#848484]", className)}
       {...props}
     />
+  );
+}
+
+// Empty state row, e.g. "No customer management & dues ledger"
+function TableEmpty({
+  colSpan,
+  children,
+  className,
+}: {
+  colSpan: number;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <tr data-slot="table-empty">
+      <td
+        colSpan={colSpan}
+        className={cn(
+          "h-[100px] px-[15px] text-center align-middle font-poppins text-[12px] font-normal text-[#919191]",
+          className
+        )}
+      >
+        {children}
+      </td>
+    </tr>
   );
 }
 
@@ -113,4 +133,5 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  TableEmpty,
 };
