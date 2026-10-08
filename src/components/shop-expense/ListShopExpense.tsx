@@ -95,7 +95,7 @@ function ExpensePage() {
       value: `${CURRENCY} ${expenses.filter((e) => e.date === today).reduce((s, e) => s + e.amount, 0)}`,
       icon: todayExpensesIcon,
       card: "border-[#F24DEB] bg-[#FF00F50D]",
-      text: "text-[#BD29B7]",
+      text: "text-primary",
       iconBox: "bg-[#F24DEB33]",
     },
     {

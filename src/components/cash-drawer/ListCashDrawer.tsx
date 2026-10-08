@@ -118,8 +118,8 @@ function CashDrawerPage() {
         </span>
       ),
       card: "border-[#F24DEB] bg-[#FF00F50D]",
-      text: "text-[#BD29B7]",
-      subText: "text-[#BD29B7]",
+      text: "text-primary",
+      subText: "text-primary",
     },
     {
       label: "Cash Sales",

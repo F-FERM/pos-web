@@ -150,7 +150,7 @@ function EmployeePage() {
                   {e.name}{" "}
                   <span className="font-normal text-[#585858]">({e.role.toLowerCase()})</span>
                 </h3>
-                <span className="inline-flex h-[17px] w-fit items-center rounded-[5px] border border-[#F24DEB] bg-[#FF00F50D] px-3 text-[10px] leading-none text-[#BD29B7]">
+                <span className="inline-flex h-[17px] w-fit items-center rounded-[5px] border border-[#F24DEB] bg-[#FF00F50D] px-3 text-[10px] leading-none text-primary">
                   {roleLabel(e.role)}
                 </span>
               </div>

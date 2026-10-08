@@ -73,7 +73,7 @@ const LOW_STOCK: LowStockItem[] = [
 
 const MODE_BADGE: Record<PaymentMode, string> = {
   Cash: "border-[#0EA300] bg-[#B0F5973D] text-[#0EA300]",
-  UPI: "border-[#F24DEB] bg-[#FF00F50D] text-[#BD29B7]",
+  UPI: "border-[#F24DEB] bg-[#FF00F50D] text-primary",
   Card: "border-[#0078DA] bg-[#A9D8FF40] text-[#0078DA]",
   Credit: "border-[#3100A3] bg-[#AB5DFF1A] text-[#3100A3]",
 };
@@ -92,8 +92,8 @@ const PAYMENT_CARDS: {
     label: "Today's Cash",
     sub: "In Cash Drawer",
     card: "border-[#F24DEB] bg-[#FF00F50D]",
-    text: "text-[#BD29B7]",
-    iconBox: "bg-[#F24DEB33] text-[#BD29B7]",
+    text: "text-primary",
+    iconBox: "bg-[#F24DEB33] text-primary",
     icon: <Clock className="size-4" />,
   },
   {
@@ -205,11 +205,11 @@ function DashboardPage() {
         <StatCard
           label="Today's Revenue"
           icon={<IndianRupee className="size-4" />}
-          iconBox="bg-[#F24DEB33] text-[#BD29B7]"
+          iconBox="bg-[#F24DEB33] text-primary"
           value={`${CURRENCY} ${totalRevenue}`}
           footer={
             <span className="flex items-center gap-1.5">
-              <span className="flex size-4 items-center justify-center rounded-[3px] bg-[#F24DEB33] text-[#BD29B7]">
+              <span className="flex size-4 items-center justify-center rounded-[3px] bg-[#F24DEB33] text-primary">
                 <IndianRupee className="size-3" />
               </span>
               {COMPLETED_TRANSACTIONS} Completed transition today
@@ -255,7 +255,7 @@ function DashboardPage() {
             <button
               type="button"
               onClick={goInventory}
-              className="flex items-center gap-1 underline underline-offset-2 hover:text-[#BD29B7]"
+              className="flex items-center gap-1 underline underline-offset-2 hover:text-primary"
             >
               View Inventory Table
               <ArrowUpRight className="size-3 text-[#F24DEB]" />
@@ -306,7 +306,7 @@ function DashboardPage() {
         <section className="flex min-w-0 flex-col gap-3 rounded-[10px] bg-[#EFEFEF] px-4 py-4 sm:px-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="flex items-center gap-2 font-poppins text-[14px] font-medium text-black">
-              <span className="flex size-[22px] items-center justify-center rounded-[5px] bg-[#F24DEB33] text-[#BD29B7]">
+              <span className="flex size-[22px] items-center justify-center rounded-[5px] bg-[#F24DEB33] text-primary">
                 <IndianRupee className="size-3.5" />
               </span>
               Recent Invoice &amp; Transaction

@@ -57,7 +57,7 @@ const SearchBar = ({
       data-slot="search-bar"
       className={cn(
         "flex h-[33px] w-full max-w-[321px] items-center gap-[10px] rounded-[25px] border border-[#D5D5D5] bg-[#E5E5E5] px-[10px] py-[5px]",
-        "transition-colors focus-within:border-[#BD29B7]",
+        "transition-colors focus-within:border-primary",
         disabled && "cursor-not-allowed opacity-60",
         className
       )}

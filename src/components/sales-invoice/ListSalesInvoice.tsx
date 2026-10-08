@@ -17,6 +17,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import { CircleX, Eye, Printer, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import salesIcon from "../../../public/icons/sales-invoice.png"
+import { InvoiceViewDialog } from "./SalesInvoiceViewDialog";
 type Invoice = {
   id: string;
   invoiceNo: string;
@@ -58,7 +59,7 @@ function SalesInvoicePage() {
   const [payment, setPayment] = useState<PaymentFilter>("All");
   const [invoices, setInvoices] = useState<Invoice[]>(INVOICES);
   const [invoiceToClose, setInvoiceToClose] = useState<Invoice | null>(null);
-
+const [invoiceToView, setInvoiceToView] = useState<Invoice | null>(null);
   const handleConfirmClose = () => {
     if (!invoiceToClose) return;
     setInvoices((prev) => prev.filter((i) => i.id !== invoiceToClose.id));
@@ -80,9 +81,14 @@ function SalesInvoicePage() {
   // action buttons for each table row
   const renderActions = (i: Invoice) => (
     <div className="flex items-center justify-center gap-2">
-      <Button type="button" aria-label="View" variant={"viewicon"}>
-        <Eye className="size-4" />
-      </Button>
+      <Button
+  type="button"
+  aria-label="View"
+  variant={"viewicon"}
+  onClick={() => setInvoiceToView(i)}
+>
+  <Eye className="size-4" />
+</Button>
       <Button type="button" aria-label="Print" variant={"editicon"}>
         <Printer className="size-4" />
       </Button>
@@ -205,6 +211,11 @@ function SalesInvoicePage() {
         onConfirm={handleConfirmClose}
         onCancel={() => setInvoiceToClose(null)}
       />
+      <InvoiceViewDialog
+  open={!!invoiceToView}
+  onOpenChange={(open) => !open && setInvoiceToView(null)}
+  invoice={invoiceToView}
+/>
     </div>
   );
 }

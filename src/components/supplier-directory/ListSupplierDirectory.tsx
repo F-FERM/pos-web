@@ -76,7 +76,7 @@ function SupplierPage() {
       value: String(suppliers.length),
       icon: activeSuppliesIcon,
       card: "border-[#F24DEB] bg-[#FF00F50D]",
-      text: "text-[#BD29B7]",
+      text: "text-primary",
       iconBox: "bg-[#F24DEB33]",
     },
     {
