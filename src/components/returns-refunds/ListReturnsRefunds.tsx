@@ -92,7 +92,7 @@ const STATUS_OPTIONS = [
 ];
 
 const STATUS_STYLE: Record<SaleStatus, string> = {
-  Completed: "border-[#F24DEB] bg-[#FF00F50D] text-[#BD29B7]",
+  Completed: "border-[#F24DEB] bg-[#FF00F50D] text-primary",
   Returned: "border-[#0078DA] bg-[#A9D8FF40] text-[#0078DA]",
   Cancelled: "border-[#FF0F0F] bg-[#FF0F0F1A] text-[#FF0F0F]",
 };
@@ -281,7 +281,7 @@ function ReturnsPage() {
           <button
             type="button"
             onClick={handleSearch}
-            className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#F24DEB] bg-[#FF00F50D] px-3 font-poppins text-[12px] text-[#BD29B7]"
+            className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#F24DEB] bg-[#FF00F50D] px-3 font-poppins text-[12px] text-primary"
           >
             <Search className="size-3.5" />
             Search
@@ -319,7 +319,7 @@ function ReturnsPage() {
               className="flex min-h-[91px] w-full flex-col gap-[10px] rounded-[10px] border border-[#A8A8A8] bg-[#4646460D] pb-[13px] pl-[15px] pr-[14px] pt-[14px] text-left font-poppins"
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="truncate text-[13px] text-[#BD29B7]">{inv.invoiceNo}</span>
+                <span className="truncate text-[13px] text-primary">{inv.invoiceNo}</span>
                 <span className="shrink-0 rounded-[5px] bg-[#BFBFBF] px-2 py-[1px] text-[10px] text-[#585858]">
                   {inv.payment}
                 </span>
@@ -353,7 +353,7 @@ function ReturnsPage() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="truncate text-[14px] text-[#BD29B7]">{inv.invoiceNo}</p>
+                    <p className="truncate text-[14px] text-primary">{inv.invoiceNo}</p>
                     <p className="text-[10px] text-[#585858]">{formatDateTime(inv.date)}</p>
                   </div>
                   <span
@@ -394,7 +394,7 @@ function ReturnsPage() {
                   <button
                     type="button"
                     onClick={() => handlePrint(inv)}
-                    className="flex h-[22px] items-center justify-center gap-1 rounded-[5px] border border-[#F24DEB] bg-[#FF00F50D] text-[10px] text-[#BD29B7]"
+                    className="flex h-[22px] items-center justify-center gap-1 rounded-[5px] border border-[#F24DEB] bg-[#FF00F50D] text-[10px] text-primary"
                   >
                     <Printer className="size-3" /> Print
                   </button>

@@ -25,6 +25,7 @@ import loyaltyPointsIcon from "../../../public/icons/customer-4.png";
 import { ConfirmationDialog } from "../common/ConfirmationDialogue";
 import AddCustomer from "./AddCustomerDues";
 import { AddCustomerDialog, CustomerFormData } from "./AddCustomeDuesDialog";
+import { PurchaseEntry, PurchaseLedgerDialog } from "./ViewCustomerDialogue";
 
 type Tag = "Regular" | "Vip" | "Wholesale";
 type TagFilter = "All" | Tag;
@@ -48,7 +49,18 @@ const CUSTOMERS: Customer[] = [
   { id: "4", name: "Joseph Thomas", mobile: "9961234567", tag: "Regular", address: "Church Lane, Kakkanad", totalSpent: 2150, loyaltyPoints: 21, dues: 0 },
   { id: "5", name: "Meera Nair", mobile: "9846098460", tag: "Vip", address: "7/21, Palarivattom", totalSpent: 24780, loyaltyPoints: 247, dues: 320 },
 ];
-
+const PURCHASES: Record<string, PurchaseEntry[]> = {
+  "1": [
+    { id: "p1", invoiceNo: "INV-2026-0008", dateTime: "07/10/26 04:20:10 PM", amount: 1250, items: 6 },
+    { id: "p2", invoiceNo: "INV-2026-0003", dateTime: "03/10/26 07:50:42 PM", amount: 2450, items: 9 },
+  ],
+  "2": [{ id: "p3", invoiceNo: "INV-2026-0007", dateTime: "07/10/26 02:05:33 PM", amount: 1850, items: 3 }],
+  "3": [
+    { id: "p4", invoiceNo: "INV-2026-0005", dateTime: "06/10/26 06:30:15 PM", amount: 12400, items: 2 },
+    { id: "p5", invoiceNo: "INV-2026-0001", dateTime: "15/09/26 09:10:05 AM", amount: 780, items: 2 },
+  ],
+  "5": [{ id: "p6", invoiceNo: "INV-2026-0006", dateTime: "05/10/26 11:40:22 AM", amount: 320, items: 1 }],
+};
 const TAG_FILTERS: TagFilter[] = ["All", "Vip", "Regular", "Wholesale"];
 
 const CURRENCY = "₹";
@@ -72,7 +84,7 @@ function CustomerPage() {
   const [tag, setTag] = useState<TagFilter>("All");
   const [customers, setCustomers] = useState<Customer[]>(CUSTOMERS);
   const [addOpen, setAddOpen] = useState(false);
-
+const [customerToView, setCustomerToView] = useState<Customer | null>(null);
   // delete confirmation
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -93,7 +105,7 @@ function CustomerPage() {
       value: String(customers.length),
       icon: totalCustomerIcon,
       card: "border-[#F24DEB] bg-[#FF00F50D]",
-      text: "text-[#BD29B7]",
+      text: "text-primary",
       iconBox: "bg-[#F24DEB33]",
     },
     {
@@ -281,9 +293,14 @@ function CustomerPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-center gap-2">
-                    <Button type="button" aria-label="View" variant={"viewicon"}>
-                      <Eye className="size-4" />
-                    </Button>
+                   <Button
+  type="button"
+  aria-label="View"
+  variant={"viewicon"}
+  onClick={() => setCustomerToView(c)}
+>
+  <Eye className="size-4" />
+</Button>
                     <AddCustomer
                       isEdit
                       id={c.id}
@@ -315,6 +332,13 @@ function CustomerPage() {
         message={`Are you sure you want to delete customer "${customerToDelete?.name}"`}
         isPending={isPending}
       />
+      <PurchaseLedgerDialog
+  open={!!customerToView}
+  onOpenChange={(open) => !open && setCustomerToView(null)}
+  customerName={customerToView?.name}
+  mobile={customerToView?.mobile}
+  purchases={customerToView ? (PURCHASES[customerToView.id] ?? []) : []}
+/>
     </div>
   );
 }

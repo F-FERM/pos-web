@@ -34,6 +34,18 @@ const buttonVariants = cva(
           "hover:bg-[#0078DA]/80 focus-visible:ring-2 focus-visible:ring-[#0078DA]/40",
           "[&_svg:not([class*='size-'])]:size-[15px]",
         ],
+        savePdf: [
+  "font-poppins h-[48px] w-full rounded-[15px] px-6 sm:w-[200px]",
+  "bg-[#0EA300] text-white",
+  "text-[15px] font-semibold uppercase leading-[100%] tracking-[0%]",
+  "hover:bg-[#0C8C00] focus-visible:ring-2 focus-visible:ring-[#0EA300]/40",
+],
+print: [
+  "font-poppins h-[48px] w-full rounded-[15px] px-6 sm:w-[200px]",
+  "bg-[#BD26B8] text-white",
+  "text-[15px] font-semibold uppercase leading-[100%] tracking-[0%]",
+  "hover:bg-[#A220A0] focus-visible:ring-2 focus-visible:ring-[#BD26B8]/40",
+],
       cancel: [
   "font-poppins w-full h-10 sm:h-[35px] sm:w-auto sm:min-w-[100px] md:min-w-[110px] lg:min-w-[120px]",
   "gap-[10px] rounded-[12px] px-4 sm:px-4 md:px-5",
@@ -93,7 +105,8 @@ save: [
   }
 );
 
-const designVariants = ["create", "cancel", "save", "cameraBackup", "completeBill"];
+const designVariants = ["create", "cancel", "save", "cameraBackup", "completeBill", "savePdf",
+  "print",];
 
 function Button({
   className,
