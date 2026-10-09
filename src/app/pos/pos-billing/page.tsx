@@ -8,6 +8,7 @@ import {
   Camera,
   ChevronDown,
   CircleCheck,
+  LogOut,
   Minus,
   Plus,
   RotateCcw,
@@ -16,6 +17,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { LocalStorage } from "@/src/utility/localStorage";
+import { useRouter } from "next/navigation";
 
 type Product = {
   id: string;
@@ -87,7 +90,7 @@ const qtyButton =
 export default function PosBillingPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
-
+ const router = useRouter();
   // cart state
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customers, setCustomers] = useState<PosCustomer[]>(CUSTOMERS);
@@ -178,6 +181,11 @@ export default function PosBillingPage() {
       ),
     [category, query],
   );
+  const handleLogout = () => {
+    LocalStorage.removeItem("access_token");
+    router.push("/login");
+  
+  };
 
   return (
     <div className="flex flex-col gap-3 lg:h-[calc(100dvh-71px-1.5rem)] lg:flex-row lg:px-2">
@@ -482,6 +490,13 @@ export default function PosBillingPage() {
             <CircleCheck className="size-[18px]" />
             Complete &amp; Bill
           </Button>
+            <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 w-full px-4 py-2 mt-1 text-sm text-red-500 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
+              >
+                <LogOut size={16} />
+                <span>Logout</span>
+              </button>
         </div>
       </section>
 

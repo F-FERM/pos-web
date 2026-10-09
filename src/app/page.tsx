@@ -7,16 +7,16 @@ import { useEffect } from "react";
 import { LocalStorage } from "../utility/localStorage";
 
 export default function Home() {
-  const userToken = LocalStorage.getItem("accessToken");
+  const userToken = LocalStorage.getItem("access_token");
 
   const router = useRouter();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (userToken) {
-      router.push("/master/currency");
+      router.push("/pos/dashboard");
     } else {
-      router.push("/pos/pos-billing");
+      router.push("/login");
     }
   }, [userToken]);
 

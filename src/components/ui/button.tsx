@@ -74,6 +74,13 @@ save: [
           "disabled:cursor-not-allowed disabled:opacity-50",
           "[&_svg:not([class*='size-'])]:size-[18px]",
         ],
+        login: [
+  "mt-1 flex h-[45px] w-full items-center justify-center gap-2 rounded-[10px] cursor-pointer",
+  "bg-[#F24DEB] font-poppins text-[14px] text-white shadow-[0px_0px_4px_0px_#00000040]",
+  "transition-opacity hover:opacity-90",
+  "disabled:cursor-not-allowed disabled:opacity-60",
+  "[&_svg:not([class*='size-'])]:size-4",
+],
          deletecancel:
           "w-[138px] h-[42px]  py-8  rounded-[5px] p-[10px] gap-[8px]  text-base text-white bg-red-600",
          deleteicon:
@@ -106,7 +113,7 @@ save: [
 );
 
 const designVariants = ["create", "cancel", "save", "cameraBackup", "completeBill", "savePdf",
-  "print",];
+  "print","login"];
 
 function Button({
   className,
