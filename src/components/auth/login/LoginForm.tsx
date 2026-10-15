@@ -14,7 +14,7 @@ import { useLogin } from "@/src/api/auth/login/hooks/create.hook";
 import { Button } from "../../ui/button";
 
 const MAX_USERNAME_LENGTH = 50;
-const MAX_PASSWORD_LENGTH = 6;
+const MAX_PASSWORD_LENGTH = 36;
 
 const schema = z.object({
   username: z
