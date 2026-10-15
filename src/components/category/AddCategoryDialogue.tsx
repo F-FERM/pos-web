@@ -11,7 +11,7 @@ import {
 import { Form } from "@/src/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import FormInput from "../common/form/FormInput";
@@ -54,6 +54,7 @@ export function AddCategoryDialog({
   isEdit = false,
   categoryId,
 }: AddCategoryDialogProps) {
+  const [search, setSearch] = useState("");
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: EMPTY,
@@ -66,8 +67,8 @@ export function AddCategoryDialog({
   });
 
   const { data: allCategories } = useQuery({
-    queryKey: ["categoryList"],
-    queryFn: () => ListCategoryApi({ page: 1, limit: 1000 }),
+    queryKey: ["categoryList",search],
+    queryFn: () => ListCategoryApi({ page: 1, limit: 1000, search: search }),
     enabled: open,
   });
 
@@ -177,7 +178,9 @@ export function AddCategoryDialog({
               options={parentOptions}
               value={form.watch("parentId")}
               onChange={(val) => form.setValue("parentId", val)}
-              valueLabel={`${categoryData?.data?.code} -${categoryData?.data?.name}`}            />
+              valueLabel={`${categoryData?.data?.code} -${categoryData?.data?.name}`}  
+              setSearch={setSearch}   
+                   />
 
             <DialogFooter className="mt-2">
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-end sm:gap-2">
