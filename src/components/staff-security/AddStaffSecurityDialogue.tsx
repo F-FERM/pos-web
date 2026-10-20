@@ -10,162 +10,229 @@ import {
 } from "@/src/components/ui/dialog";
 import { Form } from "@/src/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown } from "lucide-react";
-import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import FormInput from "../common/form/FormInput";
+import FormCombobox from "../common/form/FormCombobox";
 import { LoadingButton } from "../ui/loading-button";
-
-export const ROLE_OPTIONS = [
-  { value: "Owner", label: "Owner", hint: "Full Access" },
-  { value: "Manager", label: "Manager", hint: "Reports & Inventory" },
-  { value: "Cashier", label: "Cashier", hint: "POS & Billing" },
-];
+import { ListStaffByIdApi } from "@/src/api/staff/api/getById";
+import { useAddStaff } from "@/src/api/staff/hooks/create.hook";
+import { useEditStaff } from "@/src/api/staff/hooks/update.hook";
+import { ListPrivilegeApi } from "@/src/api/privilege/api/getAll";
 
 const formSchema = z.object({
-  fullName: z
+  name: z
     .string()
+    .trim()
     .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must be at most 100 characters"),
+    .max(50, "Name must be at most 50 characters"),
   phone: z
     .string()
-    .min(1, "Mobile / Phone is required")
-    .regex(/^\d{10}$/, "Enter a valid 10-digit mobile number"),
+    .trim()
+    .min(1, "Phone is required")
+    .regex(/^[+\d][\d\s-]{6,17}$/, "Enter a valid phone number"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .regex(/^\S+@\S+\.\S+$/, "Enter a valid email"),
+  designation: z.string().trim().min(1, "Designation is required"),
   pin: z
     .string()
-    .min(1, "Security PIN is required")
-    .regex(/^\d{4}$/, "PIN must be exactly 4 digits"),
-  role: z.string().min(1, "Role is required"),
-  salary: z.string().regex(/^\d*(\.\d+)?$/, "Enter a valid amount").optional(),
+    .min(1, "PIN is required")
+    .regex(/^\d{4,6}$/, "PIN must be 4 to 6 digits"),
+  privilegeId: z.string().min(1, "Privilege is required"),
 });
 
-export type EmployeeFormData = z.infer<typeof formSchema>;
+export type StaffFormData = z.infer<typeof formSchema>;
 
-const EMPTY: EmployeeFormData = {
-  fullName: "",
+const EMPTY: StaffFormData = {
+  name: "",
   phone: "",
+  email: "",
+  designation: "",
   pin: "",
-  role: "Cashier",
-  salary: "0",
+  privilegeId: "",
 };
 
-interface AddEmployeeDialogProps {
+interface AddStaffDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isEdit?: boolean;
-  employeeId?: string;
-  employee?: EmployeeFormData;
-  onSubmit?: (data: EmployeeFormData) => void;
+  staffId?: string;
 }
 
-export function AddEmployeeDialog({
+export function AddStaffDialog({
   open,
   onOpenChange,
   isEdit = false,
-  employee,
-  onSubmit,
-}: AddEmployeeDialogProps) {
-  const form = useForm<EmployeeFormData>({
+  staffId,
+}: AddStaffDialogProps) {
+  const [search, setSearch] = useState("");
+  const form = useForm<StaffFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: EMPTY,
   });
 
-  // Fill (edit) or clear (add) the form each time the dialog opens
-  useEffect(() => {
-    if (open) form.reset(isEdit && employee ? employee : EMPTY);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  const { data: staffData } = useQuery({
+    queryKey: ["staffById", staffId],
+    queryFn: () => ListStaffByIdApi(String(staffId)),
+    enabled: open && isEdit && !!staffId,
+  });
 
-  const handleSubmit = (data: EmployeeFormData) => {
-    // TODO: call your add / edit employee API here
-    onSubmit?.(data);
-    onOpenChange(false);
+  const { data: allPrivileges } = useQuery({
+    queryKey: ["privilegeList", search],
+    queryFn: () => ListPrivilegeApi({ page: 1, limit: 100, search }),
+    enabled: open,
+  });
+
+  const { mutate: AddStaff, isPending } = useAddStaff({
+    form,
+    onOpenChange,
+  });
+  const { mutate: EditStaff, isPending: EditPending } = useEditStaff({
+    form,
+    onOpenChange,
+  });
+
+const handleSubmit = (data: StaffFormData) => {
+  const payload = {
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    designation: data.designation,
+    privilegeId: data.privilegeId,
+    pin: data.pin,
   };
 
-  const roleError = form.formState.errors.role?.message;
+  if (isEdit) {
+    EditStaff({ id: String(staffId), value: payload });
+  } else {
+    AddStaff(payload);
+  }
+};
+
+  function onclose(value: boolean) {
+    onOpenChange(value);
+    form.reset(EMPTY);
+  }
+
+  useEffect(() => {
+    if (open && isEdit && staffData?.data) {
+      const s = staffData.data;
+      form.reset({
+        name: s.name,
+        phone: s.phone ?? "",
+        email: s.email ?? "",
+        designation: s.designation ?? "",
+        pin: s.pin, 
+        privilegeId: s.privilegeId?._id ?? "",
+      });
+    }
+  }, [open, isEdit, staffData]);
+
+  const privilegeOptions = (allPrivileges?.data || []).map((d) => ({
+    value: d?._id,
+    label: d?.name,
+  }));
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onclose}>
       <DialogContent
         aria-describedby={undefined}
-        className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-[542px] gap-0 overflow-y-auto rounded-[20px] border-0 bg-[#EFEFEF] p-4 font-poppins sm:p-6"
+        className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-[493px] gap-0 overflow-y-auto rounded-[20px] border-0 bg-[#EFEFEF] p-4 font-poppins sm:p-6"
       >
         <DialogHeader className="border-b border-[#D5D5D5] pb-3 text-left">
-          <DialogTitle className="text-[14px] font-semibold text-black sm:text-[16px]">
-            {isEdit ? "Edit Staff Member" : "Add New Staff Member"}
+          <DialogTitle className="text-[14px] font-semibold text-black">
+            {isEdit ? "Edit Staff" : "Add New Staff"}
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-4 flex flex-col gap-4">
-            <FormInput
-              type="text"
-              label="Employee Full Name"
-              name="fullName"
-              placeholder="Full Name"
-              value={form.watch("fullName")}
-              required
-            />
-
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="mt-4 flex flex-col gap-4"
+          >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormInput
                 type="text"
-                label="Mobile Phone"
-                name="phone"
-                placeholder="Mobile Number"
-                value={form.watch("phone")}
+                label="Staff Name"
+                name="name"
+                placeholder="eg. John Doe"
+                value={form.watch("name")}
                 required
               />
               <FormInput
                 type="text"
-                label="Security PIN (4 Digits)"
-                name="pin"
-                placeholder="XXXX"
-                value={form.watch("pin")}
+                label="Phone"
+                name="phone"
+                placeholder="eg. +91 98765 43210"
+                value={form.watch("phone")}
                 required
+               
               />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Role permission */}
-              <div className="flex flex-col gap-[6px]">
-                <label htmlFor="role" className="text-[12px] font-medium text-black">
-                  Role Permission
-                </label>
-                <div className="relative">
-                  <select
-                    id="role"
-                    {...form.register("role")}
-                    className="h-[34px] w-full appearance-none rounded-[6px] bg-[#E1E1E1] px-3 pr-9 text-[12px] text-black outline-none focus:ring-1 focus:ring-[#F24DEB]"
-                  >
-                    {ROLE_OPTIONS.map((r) => (
-                      <option key={r.value} value={r.value}>
-                        {r.label} ({r.hint})
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-black" />
-                </div>
-                {roleError && <p className="text-[11px] text-red-600">{roleError}</p>}
-              </div>
-
               <FormInput
                 type="text"
-                label="Monthly Salary (₹)"
-                name="salary"
-                placeholder="0"
-                value={form.watch("salary")}
+                label="Email"
+                name="email"
+                placeholder="eg. john@example.com"
+                value={form.watch("email")}
+                required
+               
+              />
+              <FormInput
+                type="text"
+                label="Designation"
+                name="designation"
+                placeholder="eg. Cashier"
+                value={form.watch("designation")}
+                required
+                
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormInput
+                type="password"
+                label="PIN"
+                name="pin"
+                placeholder={"Set Staff PIN"}
+                value={form.watch("pin")}
+                required
+              />
+              <FormCombobox
+                label="Privilege"
+                name="privilegeId"
+                placeholder="Select privilege"
+                options={privilegeOptions}
+                value={form.watch("privilegeId")}
+                onChange={(val) => form.setValue("privilegeId", val)}
+                valueLabel={staffData?.data?.privilegeId?.name}
+                setSearch={setSearch}
+                required
               />
             </div>
 
             <DialogFooter className="mt-2">
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-end sm:gap-2">
-                <Button type="button" variant="cancel" onClick={() => onOpenChange(false)}>
+                <Button
+                  type="button"
+                  variant="cancel"
+                  onClick={() => onclose(false)}
+                >
                   Cancel
                 </Button>
-                <LoadingButton type="submit" variant="save">
-                  {isEdit ? "Update Employee" : "Save Employee"}
+                <LoadingButton
+                  type="submit"
+                  variant="save"
+                  loading={isEdit ? EditPending : isPending}
+                >
+                  {isEdit ? "Update Staff" : "Save Staff"}
                 </LoadingButton>
               </div>
             </DialogFooter>

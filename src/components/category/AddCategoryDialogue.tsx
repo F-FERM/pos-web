@@ -21,6 +21,7 @@ import { ListCategoryByIdApi } from "@/src/api/category/api/getById";
 import { ListCategoryApi } from "@/src/api/category/api/getAll";
 import { useAddCategory } from "@/src/api/category/hooks/create.hook";
 import { useEditCategory } from "@/src/api/category/hooks/update.hook";
+import FormTextArea from "../common/form/FormTextArea";
 
 const formSchema = z.object({
   name: z
@@ -68,7 +69,7 @@ export function AddCategoryDialog({
 
   const { data: allCategories } = useQuery({
     queryKey: ["categoryList",search],
-    queryFn: () => ListCategoryApi({ page: 1, limit: 1000, search: search }),
+    queryFn: () => ListCategoryApi({ page: 1, limit: 100, search: search }),
     enabled: open,
   });
 
@@ -89,7 +90,7 @@ export function AddCategoryDialog({
           name: data.name,
           code: data.code ?? "",
           description: data.description ?? "",
-          parentId: data.parentId ?? "",
+           ...(data.parentId ? { parentId: data.parentId } : {}),
         },
       });
     } else {
@@ -97,7 +98,7 @@ export function AddCategoryDialog({
         name: data.name,
         code: data.code ?? "",
         description: data.description ?? "",
-        parentId: data.parentId ?? "",
+         ...(data.parentId ? { parentId: data.parentId } : {}),
       
       });
     }
@@ -105,11 +106,11 @@ export function AddCategoryDialog({
 
   function onclose(value: boolean) {
     onOpenChange(value);
-    form.reset(EMPTY);
+  form.reset();
   }
 
   useEffect(() => {
-    if (isEdit && categoryData?.data) {
+    if (open && isEdit && categoryData?.data) {
       const c = categoryData.data;
       form.reset({
         name: c.name,
@@ -118,7 +119,7 @@ export function AddCategoryDialog({
         parentId: c.parentId?._id ?? "",
       });
     }
-  }, [isEdit, categoryData]);
+  }, [open, isEdit, categoryData]);
 
   const parentOptions = (allCategories?.data || []).map(
     (d) => ({
@@ -163,13 +164,7 @@ export function AddCategoryDialog({
               />
             </div>
 
-            <FormInput
-              type="text"
-              label="Description"
-              name="description"
-              placeholder="Enter category description"
-              value={form.watch("description")}
-            />
+           
 
             <FormCombobox
               label="Parent Category"
@@ -181,7 +176,16 @@ export function AddCategoryDialog({
               valueLabel={`${categoryData?.data?.code} -${categoryData?.data?.name}`}  
               setSearch={setSearch}   
                    />
-
+ <FormTextArea
+            
+              label="Description"
+              name="description"
+              placeholder="Enter category description"
+              value={form.watch("description")}
+               onChange={(e) =>
+                form.setValue("description", e.target.value)
+              }
+            />
             <DialogFooter className="mt-2">
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-end sm:gap-2">
                 <Button

@@ -10,128 +10,160 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
+import { useQuery } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { ConfirmationDialog } from "../common/ConfirmationDialogue";
+import ErrorHandling from "../Error/ErrorHandling";
 import AddCounter from "./AddCounter";
-import { Counter, CounterFormData } from "./AddCounterDialogue";
-
-
-// Dummy data (replace with API data later)
-const COUNTERS: Counter[] = [
-  { id: "1", name: "Counter 1", code: "CNT0001", isDefault: true, isActive: true },
-  { id: "2", name: "Counter 2", code: "CNT0002", isDefault: false, isActive: true },
-  { id: "3", name: "Counter 3", code: "CNT0003", isDefault: false, isActive: false },
-];
-
-const toFormData = (c: Counter): CounterFormData => ({
-  name: c.name,
-  code: c.code,
-  isDefault: c.isDefault,
-  isActive: c.isActive,
-});
+import { ListCounterApi } from "@/src/api/counter/api/getAll";
+import { useDeleteCounter } from "@/src/api/counter/hooks/delete.hook";
+import CounterTableSkeleton from "./CounterSkeletonLoading";
+import { PaginationComponent } from "../common/PaginationComponent";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export default function CounterSettings() {
-  const [counters, setCounters] = useState<Counter[]>(COUNTERS);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
 
-  // delete confirmation
-  const [toDelete, setToDelete] = useState<Counter | null>(null);
-  const [isPending, setIsPending] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [counterToDelete, setCounterToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
-  const handleSave = (data: CounterFormData, editId?: string) => {
-    // TODO: call your add / edit counter API here
-    setCounters((prev) => {
-      // only one counter can be the default
-      const base = data.isDefault ? prev.map((c) => ({ ...c, isDefault: false })) : prev;
-      return editId
-        ? base.map((c) => (c.id === editId ? { ...c, ...data } : c))
-        : [...base, { ...data, id: crypto.randomUUID() }];
-    });
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["counterList", currentPage, pageSize],
+    queryFn: () => ListCounterApi({ page: currentPage, limit: pageSize }),
+  });
+
+  // response shape: data.data (array) + data.pagination
+  const counters = data?.data ?? [];
+  const totalCount = data?.pagination?.totalCount ?? 0;
+
+  const openDeleteDialog = (id: string, name: string) => {
+    setIsConfirmDialogOpen(true);
+    setCounterToDelete({ id, name });
   };
 
-  const handleConfirmDelete = async () => {
-    if (!toDelete) return;
-    try {
-      setIsPending(true);
-      // TODO: await your delete-counter API call here
-      setCounters((prev) => prev.filter((c) => c.id !== toDelete.id));
-      setToDelete(null);
-    } finally {
-      setIsPending(false);
+  const { mutate: DeleteCounter, isPending } = useDeleteCounter();
+
+  const handleConfirmDelete = () => {
+    if (counterToDelete) {
+      DeleteCounter(
+        { id: counterToDelete.id, counterName: counterToDelete.name },
+        {
+          onSuccess: () => {
+            setIsConfirmDialogOpen(false);
+            setCounterToDelete(null);
+          },
+        },
+      );
     }
   };
 
+  const handleConfirmDialogClose = () => {
+    setIsConfirmDialogOpen(false);
+    setCounterToDelete(null);
+  };
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center">
+        <ErrorHandling message={error.message} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex justify-end">
-        <AddCounter isEdit={false} onSubmit={(data) => handleSave(data)} />
+      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+        <AddCounter isEdit={false} />
       </div>
 
-      <Table className="min-w-[700px]">
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead>Counter Name</TableHead>
-            <TableHead>Code</TableHead>
-            <TableHead>Default</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {counters.length === 0 ? (
-            <TableEmpty colSpan={5}>No counters found</TableEmpty>
-          ) : (
-            counters.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell className="max-w-[220px] truncate" title={c.name}>
-                  {c.name}
-                </TableCell>
-                <TableCell>{c.code}</TableCell>
-                <TableCell>
-                  {c.isDefault ? (
-                    <span className="inline-flex rounded-full border border-[#0EA300] bg-[#B0F5973D] px-2 py-[2px] text-[10px] font-medium text-[#0EA300]">
-                      Default
-                    </span>
-                  ) : (
-                    "-"
-                  )}
-                </TableCell>
-                <TableCell>
-                  <span className={c.isActive ? "text-green-600" : "text-[#848484]"}>
-                    {c.isActive ? "Active" : "Inactive"}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-center gap-2">
-                    <AddCounter
-                      isEdit
-                      id={c.id}
-                      counter={toFormData(c)}
-                      onSubmit={(data) => handleSave(data, c.id)}
-                    />
-                    <Button
-                      type="button"
-                      variant="deleteicon"
-                      aria-label="Delete"
-                      onClick={() => setToDelete(c)}
+      <div className="w-full overflow-x-auto">
+        <Table className="min-w-[700px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Counter Code</TableHead>
+              <TableHead>Counter Name</TableHead>
+              <TableHead>Default</TableHead>
+         
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <CounterTableSkeleton />
+            ) : counters.length === 0 ? (
+              <TableEmpty colSpan={4}>No counters found</TableEmpty>
+            ) : (
+              counters.map((c) => (
+                <TableRow key={c._id}>
+                  <TableCell>{c.code || "-"}</TableCell>
+                  <TableCell>{c.name}</TableCell>
+              
+                    <TableCell>
+                    <span
+                      className={
+                        c.isDefault
+                          ? "rounded-full bg-green-100 px-2 py-0.5 text-[12px] font-medium text-green-700"
+                          : "rounded-full bg-red-100 px-2 py-0.5 text-[12px] font-medium text-red-700"
+                      }
                     >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+                     {c.isDefault ? "Yes" : "No"}
+                    </span>
+                    </TableCell>
+                 
+                  <TableCell>
+                    <div className="flex items-center justify-center gap-2">
+                      <Tooltip>
+                        <TooltipTrigger render={<span className="inline-flex" />}>
+                          <AddCounter isEdit id={c._id} />
+                        </TooltipTrigger>
+                        <TooltipContent>Edit</TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger render={<span className="inline-flex" />}>
+                          <Button
+                            type="button"
+                            variant="deleteicon"
+                            aria-label="Delete"
+                            onClick={() => openDeleteDialog(c._id, c.name)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Delete</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <PaginationComponent
+        currentPage={currentPage}
+        totalItems={totalCount}
+        pageSizeOptions={[5, 10, 20, 50]}
+        showItemsInfo
+        itemsPerPage={pageSize}
+        onPageChange={setCurrentPage}
+        onItemsPerPageChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+      />
 
       <ConfirmationDialog
-        open={!!toDelete}
-        onOpenChange={(open) => {
-          if (!open && !isPending) setToDelete(null);
-        }}
+        open={isConfirmDialogOpen}
+        onOpenChange={handleConfirmDialogClose}
         onConfirm={handleConfirmDelete}
-        message={`Are you sure you want to delete counter "${toDelete?.name}"?`}
+        message={`Are you sure you want to delete counter "${counterToDelete?.name}"?`}
         isPending={isPending}
       />
     </div>

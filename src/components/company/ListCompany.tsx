@@ -12,12 +12,12 @@ import ErrorHandling from "../Error/ErrorHandling";
 
 function InfoCard({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="flex min-h-[93px] w-full flex-col justify-center gap-[10px] rounded-[10px] bg-[#EFEFEF] px-5 py-[26px] font-poppins">
+    <div className="flex min-h-[93px] w-full min-w-0 flex-col justify-center gap-[10px] rounded-[10px] bg-[#EFEFEF] px-5 py-[26px] font-poppins">
       <div className="flex items-center gap-2 text-[14px] font-semibold leading-[100%] text-black [&>svg]:size-4">
         {icon}
         {label}
       </div>
-      <p className="truncate pl-6 text-[14px] font-normal leading-[100%] text-[#4D4D4D]" title={value}>
+      <p className="break-words pl-6 text-[14px] font-normal leading-snug text-[#4D4D4D]">
         {value || "-"}
       </p>
     </div>
@@ -62,7 +62,7 @@ export default function CompanySettings() {
     .filter(Boolean)
     .join(", ");
 
-  const logo = company.logo ?? "";
+  const logo = company.branding?.logoUrl ?? "";
 
   return (
     <div className="flex flex-col gap-6 md:flex-row md:items-start">

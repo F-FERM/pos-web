@@ -20,11 +20,11 @@ export const useEditCategory = ({
       return await EditCategoryApi(data.id, data.value);
     },
 
-    onSuccess: (variables) => {
+    onSuccess: (_data, variables) => {
       toast.success("Category updated successfully");
       queryClient.invalidateQueries({ queryKey: ["categoryList"] });
       queryClient.invalidateQueries({
-        queryKey: ["categoryListByid", variables.id], 
+        queryKey: ["categoryById", variables.id],
       });
     
       form.reset();

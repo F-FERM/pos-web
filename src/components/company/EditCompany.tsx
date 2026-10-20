@@ -18,6 +18,7 @@ import { z } from "zod";
 import FormInput from "../common/form/FormInput";
 import { LoadingButton } from "../ui/loading-button";
 import { useEditCompany } from "@/src/api/company/hooks/update.hook";
+import { fileToBase64 } from "../helpers/FileHandling";
 
 const MAX_LOGO_MB = 5;
 
@@ -81,6 +82,7 @@ export function EditCompanyDialog({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoError, setLogoError] = useState("");
 
+  // Prefill from the list API data each time the dialog opens
   useEffect(() => {
     if (open) {
       form.reset(company);
@@ -121,34 +123,49 @@ export function EditCompanyDialog({
     setPreview(logoUrl ?? "");
   };
 
-  const handleSubmit = (data: CompanyFormData) => {
+const handleSubmit = async (data: CompanyFormData) => {
+  try {
+   
+    const finalLogoUrl = logoFile
+      ? await fileToBase64(logoFile)
+      : logoUrl ?? "";
+
+    const payload = {
+      name: data.name ?? "",
+      contact: {
+        primaryEmail: data.contact.primaryEmail ?? "",
+        primaryPhone: data.contact.primaryPhone ?? "",
+        alternatePhone: data.contact.alternatePhone ?? "",
+        website: data.contact.website ?? "",
+      },
+      address: {
+        line1: data.address.line1 ?? "",
+        line2: data.address.line2 ?? "",
+        city: data.address.city ?? "",
+        state: data.address.state ?? "",
+        postalCode: data.address.postalCode ?? "",
+        country: data.address.country ?? "",
+      },
+      taxIdentifiers: {
+        vatNumber: data.taxIdentifiers.vatNumber ?? "",
+      },
+      regional: {
+        currency: data.regional.currency ?? "",
+        currencySymbol: data.regional.currencySymbol ?? "",
+      },
+      branding: {
+        logoUrl: finalLogoUrl,
+      },
+    };
+
     editCompany({
       id: companyId,
-      value: {
-        name: data.name ?? "",
-        logo: logoFile, 
-        contact: {
-          primaryEmail: data.contact.primaryEmail ?? "",
-          primaryPhone: data.contact.primaryPhone ?? "",
-          alternatePhone: data.contact.alternatePhone ?? "",
-          website: data.contact.website ?? "",
-        },
-        address: {
-          line1: data.address.line1 ?? "",
-          line2: data.address.line2 ?? "",
-          city: data.address.city ?? "",
-          state: data.address.state ?? "",
-          postalCode: data.address.postalCode ?? "",
-          country: data.address.country ?? "",
-        },
-        taxIdentifiers: { vatNumber: data.taxIdentifiers.vatNumber ?? "" },
-        regional: {
-          currency: data.regional.currency ?? "",
-          currencySymbol: data.regional.currencySymbol ?? "",
-        },
-      },
+      value: payload,
     });
-  };
+  } catch (error) {
+    console.error("Failed to process company logo:", error);
+  }
+};
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

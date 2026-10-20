@@ -22,11 +22,12 @@ import { ListCategoryApi } from "@/src/api/category/api/getAll";
 import { useDeleteCategory } from "@/src/api/category/hooks/delete.hook";
 import CategoryTableSkeleton from "./CategorySkeletonLoading";
 import { PaginationComponent } from "../common/PaginationComponent";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export default function CategorySettings() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [pageSize, setPageSize] = useState(50);
+
    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<{
     id: string;
@@ -35,9 +36,9 @@ export default function CategorySettings() {
 
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["categoryList", currentPage, pageSize, searchTerm],
-    queryFn: () => ListCategoryApi({ search: searchTerm, page: currentPage, limit: pageSize }),
-    placeholderData: keepPreviousData,
+    queryKey: ["categoryList", currentPage, pageSize, ],
+    queryFn: () => ListCategoryApi({  page: currentPage, limit: pageSize }),
+    
   });
 
 
@@ -51,7 +52,7 @@ export default function CategorySettings() {
 
   const { mutate: DeleteCategory, isPending } = useDeleteCategory();
 
-  const handleConfirmDelete = (remark: string) => {
+  const handleConfirmDelete = () => {
     if (categoryToDelete) {
       DeleteCategory(
         {
@@ -92,11 +93,10 @@ export default function CategorySettings() {
         <Table className="min-w-[800px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Category Name</TableHead>
               <TableHead>Category ID</TableHead>
+              <TableHead>Category Name</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Parent Category</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Parent Category</TableHead>     
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -104,39 +104,43 @@ export default function CategorySettings() {
             {isLoading ? (
               <CategoryTableSkeleton />
             ) : categories.length === 0 ? (
-              <TableEmpty colSpan={6}>No categories found</TableEmpty>
+              <TableEmpty colSpan={5}>No categories found</TableEmpty>
             ) : (
               categories.map((c) => (
                 <TableRow key={c._id}>
+                  <TableCell>{c.code || "-"}</TableCell>
                   <TableCell>{c.name}</TableCell>
-                  <TableCell>{c.code}</TableCell>
                   <TableCell className="max-w-[220px] truncate" title={c.description}>
                     {c.description || "-"}
                   </TableCell>
                   <TableCell>{c.parentId?.name ?? "None"}</TableCell>
-                  <TableCell>
-                    <span className={c.isActive ? "text-green-600" : "text-[#848484]"}>
-                      {c.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-center gap-2">
-                      <AddCategory isEdit id={c._id} />
-                      <Button
-                        type="button"
-                        variant="deleteicon"
-                        aria-label="Delete"
-                         onClick={() =>
-                                  openDeleteDialog(
-                                    c._id,
-                                    c.name
-                                  )
-                                }
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                
+                <TableCell>
+  <div className="flex items-center justify-center gap-2">
+    {/* Edit */}
+    <Tooltip>
+      <TooltipTrigger render={<span className="inline-flex" />}>
+        <AddCategory isEdit id={c._id} />
+      </TooltipTrigger>
+      <TooltipContent>Edit</TooltipContent>
+    </Tooltip>
+
+    {/* Delete */}
+    <Tooltip>
+      <TooltipTrigger render={<span className="inline-flex" />}>
+        <Button
+          type="button"
+          variant="deleteicon"
+          aria-label="Delete"
+          onClick={() => openDeleteDialog(c._id, c.name)}
+        >
+          <Trash2 className="size-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Delete</TooltipContent>
+    </Tooltip>
+  </div>
+</TableCell>
                 </TableRow>
               ))
             )}
@@ -166,4 +170,4 @@ export default function CategorySettings() {
       />
     </div>
   );
-}
+} 

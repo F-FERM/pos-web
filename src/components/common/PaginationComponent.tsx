@@ -121,7 +121,7 @@ export function PaginationComponent({
         <select
           value={itemsPerPage}
           onChange={(e) => onItemsPerPageChange?.(Number(e.target.value))}
-          className="h-8 rounded-[10px] border border-[#D5D5D5] bg-white px-2 text-[12px] font-medium text-black focus:border-primary focus:outline-none"
+          className="h-8 rounded-[10px] border border-[#D5D5D5] bg-[#DDDDDD] px-2 text-[12px] font-medium text-black focus:border-primary focus:outline-none"
         >
           {pageSizeOptions.map((size) => (
             <option key={size} value={size}>

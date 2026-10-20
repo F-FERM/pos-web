@@ -1,21 +1,15 @@
 import { Button } from "@/src/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/src/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/src/components/ui/tooltip";
 import { Pencil, Plus } from "lucide-react";
 import { useState } from "react";
-import { AddPrinterDialog, PrinterFormData } from "./AddPrinterDialogue";
+import { AddPrinterDialog } from "./AddPrinterDialogue";
 
 interface AddPrinterProps {
   isEdit: boolean;
   id?: string;
-  printer?: PrinterFormData;
-  onSubmit?: (data: PrinterFormData) => void;
 }
 
-const AddPrinter = ({ isEdit, id, printer, onSubmit }: AddPrinterProps) => {
+const AddPrinter = ({ isEdit, id }: AddPrinterProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -51,8 +45,6 @@ const AddPrinter = ({ isEdit, id, printer, onSubmit }: AddPrinterProps) => {
         onOpenChange={setIsDialogOpen}
         isEdit={isEdit}
         printerId={id}
-        printer={printer}
-        onSubmit={onSubmit}
       />
     </>
   );

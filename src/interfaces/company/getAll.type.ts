@@ -17,11 +17,10 @@ export interface Company {
   _id: string;
   isDeleted: boolean;
   isSynced: boolean;
-  syncedAt: null;
+  syncedAt: string;
   createdBy: string;
   subscriptionId: string;
   name: string;
-  logo:string;
   code: string;
   slug: string;
   licenseKey: string;
@@ -44,12 +43,17 @@ export interface Company {
   activatedAt: string;
   lastActivityAt: null;
   syncVersion: number;
-  lastSyncedAt: null;
+  lastSyncedAt: string;
   deletedAt: null;
   createdAt: string;
   updatedAt: string;
   __v: number;
   taxIdentifiers: TaxIdentifiers;
+  branding: Branding;
+}
+
+interface Branding {
+  logoUrl: string;
 }
 
 interface TaxIdentifiers {
@@ -107,13 +111,4 @@ interface Contact {
   primaryPhone: string;
   alternatePhone: string;
   website: string;
-}
-
-
-
-export interface GetCompanyRequest {
-  search?: string;
-  page?: number;
-  limit?: number;
-  
 }

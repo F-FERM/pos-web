@@ -10,38 +10,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
-import { Monitor, Printer as PrinterIcon, Star, Trash2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Monitor, PrinterIcon, Star, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { ConfirmationDialog } from "../common/ConfirmationDialogue";
+import ErrorHandling from "../Error/ErrorHandling";
 import AddPrinter from "./AddPrinter";
-import { Printer, PrinterFormData } from "./AddPrinterDialogue";
-
-// Dummy data (replace with API data later)
-const PRINTERS: Printer[] = [
-  { id: "1", name: "Counter Printer", ip: "192.168.1.50", counter: "Counter 1", paperWidth: "80", isDefault: true },
-  { id: "2", name: "Billing Printer", ip: "192.168.1.51", counter: "Counter 2", paperWidth: "58", isDefault: false },
-];
-
-const toFormData = (p: Printer): PrinterFormData => ({
-  name: p.name,
-  ip: p.ip,
-  counter: p.counter,
-  paperWidth: p.paperWidth,
-  isDefault: p.isDefault,
-});
-
-export default function PrinterSettings() {
-  const [printers, setPrinters] = useState<Printer[]>(PRINTERS);
-
-  // delete confirmation
-  const [toDelete, setToDelete] = useState<Printer | null>(null);
-  const [isPending, setIsPending] = useState(false);
-
-  // summary cards
+import { ListPrinterApi } from "@/src/api/printer/api/getAll";
+import { useDeletePrinter } from "@/src/api/printer/hooks/delete.hook";
+import PrinterTableSkeleton from "./PrinterSkeletonLoading";
+import { PaginationComponent } from "../common/PaginationComponent";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
   const stats = [
     {
       label: "Total Printers",
-      value: String(printers.length),
+      value: 30,
       icon: PrinterIcon,
       card: "border-[#F24DEB] bg-[#FF00F50D]",
       text: "text-primary",
@@ -49,7 +32,7 @@ export default function PrinterSettings() {
     },
     {
       label: "Default Printer",
-      value: String(printers.filter((p) => p.isDefault).length),
+      value: 12,
       icon: Star,
       card: "border-[#0EA300] bg-[#B0F5973D]",
       text: "text-[#0EA300]",
@@ -57,7 +40,7 @@ export default function PrinterSettings() {
     },
     {
       label: "Assigned Counters",
-      value: String(new Set(printers.map((p) => p.counter).filter(Boolean)).size),
+      value: 50,
       icon: Monitor,
       card: "border-[#0078DA] bg-[#A9D8FF40]",
       text: "text-[#0078DA]",
@@ -65,33 +48,62 @@ export default function PrinterSettings() {
     },
   ];
 
-  const handleSave = (data: PrinterFormData, editId?: string) => {
-    // TODO: call your add / edit printer API here
-    setPrinters((prev) => {
-      // only one printer can be the default
-      const base = data.isDefault ? prev.map((p) => ({ ...p, isDefault: false })) : prev;
-      const values = { ...data, counter: data.counter ?? "" };
-      return editId
-        ? base.map((p) => (p.id === editId ? { ...p, ...values } : p))
-        : [...base, { ...values, id: crypto.randomUUID() }];
-    });
+export default function PrinterSettings() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [printerToDelete, setPrinterToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["printerList", currentPage, pageSize],
+    queryFn: () => ListPrinterApi({ page: currentPage, limit: pageSize }),
+  });
+
+  // response shape: data.data (array) + data.pagination
+  const printers = data?.data ?? [];
+  const totalCount = data?.pagination?.totalCount ?? 0;
+
+  const openDeleteDialog = (id: string, name: string) => {
+    setIsConfirmDialogOpen(true);
+    setPrinterToDelete({ id, name });
   };
 
-  const handleConfirmDelete = async () => {
-    if (!toDelete) return;
-    try {
-      setIsPending(true);
-      // TODO: await your delete-printer API call here
-      setPrinters((prev) => prev.filter((p) => p.id !== toDelete.id));
-      setToDelete(null);
-    } finally {
-      setIsPending(false);
+  const { mutate: DeletePrinter, isPending } = useDeletePrinter();
+
+  const handleConfirmDelete = () => {
+    if (printerToDelete) {
+      DeletePrinter(
+        { id: printerToDelete.id, printerName: printerToDelete.name },
+        {
+          onSuccess: () => {
+            setIsConfirmDialogOpen(false);
+            setPrinterToDelete(null);
+          },
+        },
+      );
     }
   };
 
+  const handleConfirmDialogClose = () => {
+    setIsConfirmDialogOpen(false);
+    setPrinterToDelete(null);
+  };
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center">
+        <ErrorHandling message={error.message} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      {/* Summary cards: 1 column on phones, 3 from sm */}
+            {/* Summary cards: 1 column on phones, 3 from sm */}
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {stats.map((s) => (
           <div
@@ -112,74 +124,98 @@ export default function PrinterSettings() {
           </div>
         ))}
       </section>
-
-      <div className="flex justify-end">
-        <AddPrinter isEdit={false} onSubmit={(data) => handleSave(data)} />
+      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+        <AddPrinter isEdit={false} />
       </div>
 
-      <Table className="min-w-[800px]">
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead>Printer Name</TableHead>
-            <TableHead>IP Address</TableHead>
-            <TableHead>Counter</TableHead>
-            <TableHead>Paper</TableHead>
-            <TableHead>Default</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {printers.length === 0 ? (
-            <TableEmpty colSpan={6}>No printers found</TableEmpty>
-          ) : (
-            printers.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell className="max-w-[220px] truncate" title={p.name}>
-                  {p.name}
-                </TableCell>
-                <TableCell>{p.ip}</TableCell>
-                <TableCell>{p.counter || "-"}</TableCell>
-                <TableCell>{p.paperWidth} mm</TableCell>
-                <TableCell>
-                  {p.isDefault ? (
-                    <span className="inline-flex rounded-full border border-[#0EA300] bg-[#B0F5973D] px-2 py-[2px] text-[10px] font-medium text-[#0EA300]">
-                      Default
-                    </span>
-                  ) : (
-                    "-"
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-center gap-2">
-                    <AddPrinter
-                      isEdit
-                      id={p.id}
-                      printer={toFormData(p)}
-                      onSubmit={(data) => handleSave(data, p.id)}
-                    />
-                    <Button
-                      type="button"
-                      variant="deleteicon"
-                      aria-label="Delete"
-                      onClick={() => setToDelete(p)}
+      <div className="w-full overflow-x-auto">
+        <Table className="min-w-[800px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Printer Name</TableHead>
+              <TableHead>IP Address</TableHead>
+              <TableHead>Counter</TableHead>
+              <TableHead>Paper Width</TableHead>
+              <TableHead>Default</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <PrinterTableSkeleton />
+            ) : printers.length === 0 ? (
+              <TableEmpty colSpan={6}>No printers found</TableEmpty>
+            ) : (
+              printers.map((p) => (
+                <TableRow key={p._id}>
+                  <TableCell>{p.printerName}</TableCell>
+                  <TableCell>{p.printerIp}</TableCell>
+                  <TableCell>
+                    {p.counterId
+                      ? `${p.counterId.code} - ${p.counterId.name}`
+                      : "-"}
+                  </TableCell>
+                  <TableCell>{p.paperWidth}</TableCell>
+                  <TableCell>
+                    <span
+                      className={
+                        p.isDefault
+                          ? "rounded-full bg-green-100 px-2 py-0.5 text-[12px] font-medium text-green-700"
+                          : "rounded-full bg-red-100 px-2 py-0.5 text-[12px] font-medium text-red-700"
+                      }
                     >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+                     {p.isDefault ? "Yes" : "No"}
+                    </span>
+                    </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-center gap-2">
+                      <Tooltip>
+                        <TooltipTrigger render={<span className="inline-flex" />}>
+                          <AddPrinter isEdit id={p._id} />
+                        </TooltipTrigger>
+                        <TooltipContent>Edit</TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger render={<span className="inline-flex" />}>
+                          <Button
+                            type="button"
+                            variant="deleteicon"
+                            aria-label="Delete"
+                            onClick={() => openDeleteDialog(p._id, p.printerName)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Delete</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <PaginationComponent
+        currentPage={currentPage}
+        totalItems={totalCount}
+        pageSizeOptions={[5, 10, 20, 50]}
+        showItemsInfo
+        itemsPerPage={pageSize}
+        onPageChange={setCurrentPage}
+        onItemsPerPageChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+      />
 
       <ConfirmationDialog
-        open={!!toDelete}
-        onOpenChange={(open) => {
-          if (!open && !isPending) setToDelete(null);
-        }}
+        open={isConfirmDialogOpen}
+        onOpenChange={handleConfirmDialogClose}
         onConfirm={handleConfirmDelete}
-        message={`Are you sure you want to delete printer "${toDelete?.name}"?`}
+        message={`Are you sure you want to delete printer "${printerToDelete?.name}"?`}
         isPending={isPending}
       />
     </div>
