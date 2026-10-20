@@ -170,7 +170,7 @@ const [customerToView, setCustomerToView] = useState<Customer | null>(null);
     if (!open && !isPending) setCustomerToDelete(null);
   };
 
-  const handleConfirmDelete = async (remark: string) => {
+  const handleConfirmDelete = async () => {
     if (!customerToDelete) return;
     try {
       setIsPending(true);

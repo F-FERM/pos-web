@@ -1,10 +1,12 @@
 "use client";
 
+import BrandSettings from "@/src/components/brand/ListBrand";
 import CategorySettings from "@/src/components/category/ListCategory";
 import CompanySettings from "@/src/components/company/ListCompany";
 import CounterSettings from "@/src/components/counter/ListCounter";
 import PrinterSettings from "@/src/components/printer/ListPrinter";
 import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
+import UnitSettings from "@/src/components/unit/ListUnit";
 import { useState } from "react";
 
 
@@ -15,21 +17,20 @@ const SETTINGS_TABS = [
   "Printer",
   "Counter",
   "Brand",
-  "Updates",
 ] as const;
 type SettingsTab = (typeof SETTINGS_TABS)[number];
 
 const HEADERS: Record<SettingsTab, { title: string; subtitle: string }> = {
   Company: {
-    title: "Company Settings",
+    title: "Company Management",
     subtitle:
-      "Select your industry and business type to configure the system according to your supermarket's retail operations.",
+      "Select your industry and business type to configure the system according to your supermarket’s retail operations.",
   },
   Category: {
-    title: "Category Settings",
+    title: "Category Management",
     subtitle: "Manage product categories for your grocery store",
   },
-  Unit: { title: "Unit Settings", subtitle: "Manage units of measurement" },
+  Unit: { title: "Unit", subtitle: "Create and manage units used for products and inventory." },
   Printer: {
     title: "Printer Management",
     subtitle: "Configure receipt printers and assign them to counters.",
@@ -38,8 +39,7 @@ const HEADERS: Record<SettingsTab, { title: string; subtitle: string }> = {
     title: "Counter Management",
     subtitle: "Manage billing counters and choose your default counter.",
   },
-  Brand: { title: "Brand Settings", subtitle: "Manage product brands" },
-  Updates: { title: "Updates", subtitle: "Check for system updates" },
+  Brand: { title: "Brand Management", subtitle: "Organize and manage brands assigned to your products." },
 };
 
 function SettingsPage() {
@@ -79,8 +79,10 @@ function SettingsPage() {
 
       {tab === "Company" && <CompanySettings />}
       {tab === "Category" && <CategorySettings />}
+      {tab === "Unit" && <UnitSettings />}
       {tab === "Printer" && <PrinterSettings />}
       {tab === "Counter" && <CounterSettings />}
+      {tab === "Brand" && <BrandSettings />}
     </div>
   );
 }

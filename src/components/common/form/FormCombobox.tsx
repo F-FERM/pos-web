@@ -72,7 +72,7 @@ const FormCombobox = ({
   optional,
   setSearch,
   displayValueOnly = false,
-  searchable = false,
+  searchable = true, // search box is now shown by default
 }: FormComboboxProps) => {
   const [open, setOpen] = useState(false);
   const [width, setWidth] = useState(0);
@@ -120,9 +120,7 @@ const FormCombobox = ({
         const labelContent = (
           <>
             {label}
-            {required && (
-              <span className="text-red-500">*</span>
-            )}
+            {required && <span className="text-red-500">*</span>}
             {optional && <span className="text-[#585858]">(Optional)</span>}
           </>
         );
@@ -174,7 +172,12 @@ const FormCombobox = ({
                   style={{ width: width ? `${width}px` : undefined }}
                   onWheel={(e) => e.stopPropagation()}
                 >
-                  <Command className="bg-transparent">
+                  {/* If setSearch is passed, filtering is done by the parent (API),
+                      so cmdk's own local filtering is turned off */}
+                  <Command
+                    className="bg-transparent"
+                    shouldFilter={!setSearch}
+                  >
                     {searchable && (
                       <CommandInput
                         placeholder="Search..."

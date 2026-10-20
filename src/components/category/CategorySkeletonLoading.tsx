@@ -7,7 +7,7 @@ const CategoryTableSkeleton = () =>
       <TableCell><Skeleton className="h-4 w-[160px]" /></TableCell>
       <TableCell><Skeleton className="h-4 w-[90px]" /></TableCell>
       <TableCell><Skeleton className="h-4 w-[220px]" /></TableCell>
-      <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+
       <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
       <TableCell>
         <div className="flex items-center justify-center gap-2">

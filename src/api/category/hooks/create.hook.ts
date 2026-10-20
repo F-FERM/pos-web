@@ -29,7 +29,7 @@ export const useAddCategory = ({
     },
     onError: (error: unknown) => {
       const errorData = error as CustomError;
-      const errorMessage = errorData.error || errorData.message;
+      const errorMessage =  errorData.message;
       toast.error(errorMessage);
     },
   });

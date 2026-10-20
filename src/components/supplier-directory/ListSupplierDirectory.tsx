@@ -138,7 +138,7 @@ function SupplierPage() {
     if (!open && !isPending) setSupplierToDelete(null);
   };
 
-  const handleConfirmDelete = async (remark: string) => {
+  const handleConfirmDelete = async () => {
     if (!supplierToDelete) return;
     try {
       setIsPending(true);

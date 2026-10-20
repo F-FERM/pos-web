@@ -1,21 +1,15 @@
 import { Button } from "@/src/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/src/components/ui/tooltip";
-import { Plus, SquarePen } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/src/components/ui/tooltip";
+import { Pencil, Plus } from "lucide-react";
 import { useState } from "react";
-import { AddEmployeeDialog, EmployeeFormData } from "./AddStaffSecurityDialogue";
+import { AddStaffDialog } from "./AddStaffSecurityDialogue";
 
-interface AddEmployeeProps {
+interface AddStaffProps {
   isEdit: boolean;
   id?: string;
-  employee?: EmployeeFormData;
-  onSubmit?: (data: EmployeeFormData) => void;
 }
 
-const AddEmployee = ({ isEdit, id, employee, onSubmit }: AddEmployeeProps) => {
+const AddStaff = ({ isEdit, id }: AddStaffProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -31,7 +25,7 @@ const AddEmployee = ({ isEdit, id, employee, onSubmit }: AddEmployeeProps) => {
                 aria-label="Edit"
                 onClick={() => setIsDialogOpen(true)}
               >
-                <SquarePen className="size-4" />
+                <Pencil className="size-4" />
               </Button>
             }
           />
@@ -42,20 +36,18 @@ const AddEmployee = ({ isEdit, id, employee, onSubmit }: AddEmployeeProps) => {
       ) : (
         <Button type="button" variant="create" onClick={() => setIsDialogOpen(true)}>
           <Plus />
-          Add New Staff Member
+          Add Staff
         </Button>
       )}
 
-      <AddEmployeeDialog
+      <AddStaffDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         isEdit={isEdit}
-        employeeId={id}
-        employee={employee}
-        onSubmit={onSubmit}
+        staffId={id}
       />
     </>
   );
 };
 
-export default AddEmployee;
+export default AddStaff;

@@ -20,11 +20,11 @@ export const useEditCategory = ({
       return await EditCategoryApi(data.id, data.value);
     },
 
-    onSuccess: (variables) => {
+    onSuccess: (_data, variables) => {
       toast.success("Category updated successfully");
       queryClient.invalidateQueries({ queryKey: ["categoryList"] });
       queryClient.invalidateQueries({
-        queryKey: ["categoryListByid", variables.id], 
+        queryKey: ["categoryById", variables.id],
       });
     
       form.reset();
@@ -32,7 +32,7 @@ export const useEditCategory = ({
     },
     onError: (error: unknown) => {
       const errorData = error as CustomError;
-      const errorMessage = errorData.error || errorData.message;
+      const errorMessage =  errorData.message;
       toast.error(errorMessage);
     },
   });

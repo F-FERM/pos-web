@@ -1,4 +1,4 @@
-import { GetCompanyRequest, ListCompanyResponse } from "@/src/interfaces/company/getAll.type";
+import {  ListCompanyResponse } from "@/src/interfaces/company/getAll.type";
 import axiosInstance from "@/src/service/axios";
 import { AxiosError } from "axios";
 

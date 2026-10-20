@@ -1,22 +1,15 @@
 import { Button } from "@/src/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/src/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/src/components/ui/tooltip";
 import { Pencil, Plus } from "lucide-react";
 import { useState } from "react";
-import { AddCounterDialog, CounterFormData } from "./AddCounterDialogue";
-
+import { AddCounterDialog } from "./AddCounterDialogue";
 
 interface AddCounterProps {
   isEdit: boolean;
   id?: string;
-  counter?: CounterFormData;
-  onSubmit?: (data: CounterFormData) => void;
 }
 
-const AddCounter = ({ isEdit, id, counter, onSubmit }: AddCounterProps) => {
+const AddCounter = ({ isEdit, id }: AddCounterProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -52,8 +45,6 @@ const AddCounter = ({ isEdit, id, counter, onSubmit }: AddCounterProps) => {
         onOpenChange={setIsDialogOpen}
         isEdit={isEdit}
         counterId={id}
-        counter={counter}
-        onSubmit={onSubmit}
       />
     </>
   );
