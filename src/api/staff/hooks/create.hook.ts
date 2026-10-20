@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { AddStaffApi } from "../api/create";
+import { StaffFormData } from "@/src/components/staff-security/AddStaffSecurityDialogue";
 
 
 export const useAddStaff = ({

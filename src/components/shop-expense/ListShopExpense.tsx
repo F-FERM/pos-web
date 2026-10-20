@@ -151,7 +151,7 @@ function ExpensePage() {
     if (!open && !isPending) setExpenseToDelete(null);
   };
 
-  const handleConfirmDelete = async (remark: string) => {
+  const handleConfirmDelete = async () => {
     if (!expenseToDelete) return;
     try {
       setIsPending(true);
