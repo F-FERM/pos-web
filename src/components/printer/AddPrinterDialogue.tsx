@@ -185,6 +185,7 @@ useEffect(() => {
               onChange={(val) => form.setValue("counterId", val)}
               valueLabel={counterLabel}
               setSearch={setSearch}
+              required
             />
 
             {/* Paper width */}

@@ -88,8 +88,8 @@ export default function BrandSettings() {
             <TableRow className="hover:bg-transparent">
               <TableHead>Brand Name</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Create Date</TableHead>
-              <TableHead>Update Date</TableHead>
+              <TableHead>Created Date</TableHead>
+              <TableHead>Updated Date</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>

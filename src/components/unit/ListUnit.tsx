@@ -89,8 +89,8 @@ export default function UnitSettings() {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Unit Name</TableHead>
-              <TableHead>Create Date</TableHead>
-              <TableHead>Update Date</TableHead>
+              <TableHead>Created Date</TableHead>
+              <TableHead>Updated Date</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>

@@ -17,6 +17,7 @@ type PageHeaderProps = {
   iconAlt?: string;
   actions?: HeaderAction[];
   className?: string;
+  rightContent?: ReactNode;
 };
 
 export default function PageHeader({
@@ -25,6 +26,7 @@ export default function PageHeader({
   icon,
   iconAlt = "",
   actions,
+    rightContent,
   className = "",
 }: PageHeaderProps) {
   return (
@@ -55,6 +57,10 @@ export default function PageHeader({
           </p>
         )}
       </div>
+
+      {rightContent && (
+        <div className="w-full shrink-0 sm:w-auto">{rightContent}</div>
+      )}
 
       {actions && actions.length > 0 && (
         <div className="flex shrink-0 flex-wrap items-center gap-2">

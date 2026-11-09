@@ -5,6 +5,7 @@ import CategorySettings from "@/src/components/category/ListCategory";
 import CompanySettings from "@/src/components/company/ListCompany";
 import CounterSettings from "@/src/components/counter/ListCounter";
 import PrinterSettings from "@/src/components/printer/ListPrinter";
+import PrivilegeSettings from "@/src/components/privilege/ListPrivilege";
 import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import UnitSettings from "@/src/components/unit/ListUnit";
 import { useState } from "react";
@@ -17,6 +18,7 @@ const SETTINGS_TABS = [
   "Printer",
   "Counter",
   "Brand",
+  "Privilege"
 ] as const;
 type SettingsTab = (typeof SETTINGS_TABS)[number];
 
@@ -40,6 +42,9 @@ const HEADERS: Record<SettingsTab, { title: string; subtitle: string }> = {
     subtitle: "Manage billing counters and choose your default counter.",
   },
   Brand: { title: "Brand Management", subtitle: "Organize and manage brands assigned to your products." },
+  Privilege: { title: "Privilege Management", subtitle: "Manage user roles and permissions." },
+  
+
 };
 
 function SettingsPage() {
@@ -83,6 +88,7 @@ function SettingsPage() {
       {tab === "Printer" && <PrinterSettings />}
       {tab === "Counter" && <CounterSettings />}
       {tab === "Brand" && <BrandSettings />}
+ {tab === "Privilege" && <PrivilegeSettings />}     
     </div>
   );
 }
