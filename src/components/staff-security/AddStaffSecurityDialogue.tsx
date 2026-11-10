@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import FormInput from "../common/form/FormInput";
 import FormCombobox from "../common/form/FormCombobox";
+import FormPhoneNumberInput from "../common/form/FormPhoneNumberInput";
 import { LoadingButton } from "../ui/loading-button";
 import { ListStaffByIdApi } from "@/src/api/staff/api/getById";
 import { useAddStaff } from "@/src/api/staff/hooks/create.hook";
@@ -28,16 +29,24 @@ const formSchema = z.object({
     .trim()
     .min(2, "Name must be at least 2 characters")
     .max(50, "Name must be at most 50 characters"),
-  phone: z
-    .string()
-    .trim()
-    .min(1, "Phone is required")
-    .regex(/^[+\d][\d\s-]{6,17}$/, "Enter a valid phone number"),
+ phone: z
+  .string()
+  .trim()
+  .min(1, "Phone is required")
+  .regex(/^\+?[\d\s-]+$/, "Please enter a valid phone number")
+  .refine(
+    (value) => {
+      const digits = value.replace(/\D/g, "");
+      return digits.length >= 6 && digits.length <= 17;
+    },
+    "Phone number must contain 6 to 17 digits"
+  ),
+  // optional: only validated when something is entered
   email: z
     .string()
     .trim()
-    .min(1, "Email is required")
-    .regex(/^\S+@\S+\.\S+$/, "Enter a valid email"),
+    .optional()
+    .refine((v) => !v || /^\S+@\S+\.\S+$/.test(v), "Enter a valid email"),
   designation: z.string().trim().min(1, "Designation is required"),
   pin: z
     .string()
@@ -97,22 +106,25 @@ export function AddStaffDialog({
     onOpenChange,
   });
 
-const handleSubmit = (data: StaffFormData) => {
-  const payload = {
-    name: data.name,
-    phone: data.phone,
-    email: data.email,
-    designation: data.designation,
-    privilegeId: data.privilegeId,
-    pin: data.pin,
-  };
+  const handleSubmit = (data: StaffFormData) => {
+    const email = data.email?.trim();
 
-  if (isEdit) {
-    EditStaff({ id: String(staffId), value: payload });
-  } else {
-    AddStaff(payload);
-  }
-};
+    const payload = {
+      name: data.name,
+      phone: data.phone,
+      designation: data.designation,
+      privilegeId: data.privilegeId,
+      pin: data.pin,
+      // send email only when filled
+      ...(email ? { email } : {}),
+    };
+
+    if (isEdit) {
+      EditStaff({ id: String(staffId), value: payload });
+    } else {
+      AddStaff(payload);
+    }
+  };
 
   function onclose(value: boolean) {
     onOpenChange(value);
@@ -127,7 +139,7 @@ const handleSubmit = (data: StaffFormData) => {
         phone: s.phone ?? "",
         email: s.email ?? "",
         designation: s.designation ?? "",
-        pin: s.pin, 
+        pin: s.pin,
         privilegeId: s.privilegeId?._id ?? "",
       });
     }
@@ -164,27 +176,27 @@ const handleSubmit = (data: StaffFormData) => {
                 value={form.watch("name")}
                 required
               />
-              <FormInput
-                type="text"
-                label="Phone"
-                name="phone"
-                placeholder="eg. +91 98765 43210"
-                value={form.watch("phone")}
-                required
-               
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormInput
+                <FormInput
                 type="text"
                 label="Email"
                 name="email"
                 placeholder="eg. john@example.com"
-                value={form.watch("email")}
-                required
-               
+                value={form.watch("email") ?? ""}
               />
+            </div>
+ 
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 ">
+             
+             <FormPhoneNumberInput
+                label="Phone"
+                name="phone"
+                placeholder="eg. 98765 43210"
+                value={form.watch("phone")}
+                required
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            
               <FormInput
                 type="text"
                 label="Designation"
@@ -192,19 +204,22 @@ const handleSubmit = (data: StaffFormData) => {
                 placeholder="eg. Cashier"
                 value={form.watch("designation")}
                 required
-                
               />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormInput
+               <FormInput
                 type="password"
                 label="PIN"
                 name="pin"
-                placeholder={"Set Staff PIN"}
+                placeholder="Set Staff PIN"
                 value={form.watch("pin")}
                 required
               />
+            </div>
+
+       
+           
+            
+     <div className="grid grid-cols-1 gap-4 sm:grid-cols-1">
+             
               <FormCombobox
                 label="Privilege"
                 name="privilegeId"
@@ -217,7 +232,6 @@ const handleSubmit = (data: StaffFormData) => {
                 required
               />
             </div>
-
             <DialogFooter className="mt-2">
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-end sm:gap-2">
                 <Button

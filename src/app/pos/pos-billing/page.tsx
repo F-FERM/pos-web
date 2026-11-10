@@ -134,8 +134,8 @@ export default function PosBillingPage() {
   const handleCreateCustomer = (data: CustomerFormData) => {
     const created: PosCustomer = {
       id: crypto.randomUUID(),
-      name: data.fullName,
-      mobile: data.mobile ?? "",
+      name: data.name,
+      mobile: data.phone ?? "",
     };
     // TODO: call your create-customer API here
     setCustomers((prev) => [created, ...prev]);
@@ -501,11 +501,11 @@ export default function PosBillingPage() {
       </section>
 
       {/* Add new customer (opened by the plus button next to the phone number) */}
-      <AddCustomerDialog
+      {/* <AddCustomerDialog
         open={addCustomerOpen}
         onOpenChange={setAddCustomerOpen}
         onSubmit={handleCreateCustomer}
-      />
+      /> */}
     </div>
   );
 }

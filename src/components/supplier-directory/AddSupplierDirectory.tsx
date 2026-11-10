@@ -1,21 +1,15 @@
 import { Button } from "@/src/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/src/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/src/components/ui/tooltip";
 import { Plus, SquarePen } from "lucide-react";
 import { useState } from "react";
-import { AddSupplierDialog, SupplierFormData } from "./AddSupplierDirectoryDialogue";
+import { AddSupplierDialog } from "./AddSupplierDirectoryDialogue";
 
 interface AddSupplierProps {
   isEdit: boolean;
   id?: string;
-  supplier?: SupplierFormData;
-  onSubmit?: (data: SupplierFormData) => void;
 }
 
-const AddSupplier = ({ isEdit, id, supplier, onSubmit }: AddSupplierProps) => {
+const AddSupplier = ({ isEdit, id }: AddSupplierProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -46,14 +40,7 @@ const AddSupplier = ({ isEdit, id, supplier, onSubmit }: AddSupplierProps) => {
         </Button>
       )}
 
-      <AddSupplierDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        isEdit={isEdit}
-        supplierId={id}
-        supplier={supplier}
-        onSubmit={onSubmit}
-      />
+      <AddSupplierDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} isEdit={isEdit} supplierId={id} />
     </>
   );
 };
