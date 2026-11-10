@@ -1,6 +1,6 @@
 import { Button } from "@/src/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/src/components/ui/tooltip";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, SquarePen } from "lucide-react";
 import { useState } from "react";
 import { AddStaffDialog } from "./AddStaffSecurityDialogue";
 
@@ -25,7 +25,7 @@ const AddStaff = ({ isEdit, id }: AddStaffProps) => {
                 aria-label="Edit"
                 onClick={() => setIsDialogOpen(true)}
               >
-                <Pencil className="size-4" />
+                <SquarePen className="size-4" />
               </Button>
             }
           />

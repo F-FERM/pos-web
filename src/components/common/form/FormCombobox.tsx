@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import {
   Command,
@@ -51,6 +51,7 @@ interface FormComboboxProps {
   setSearch?: Dispatch<SetStateAction<string>>;
   displayValueOnly?: boolean;
   searchable?: boolean;
+  onAdd?: () => void;
 }
 
 const FormCombobox = ({
@@ -72,7 +73,8 @@ const FormCombobox = ({
   optional,
   setSearch,
   displayValueOnly = false,
-  searchable = true, // search box is now shown by default
+  searchable = true,
+  onAdd,
 }: FormComboboxProps) => {
   const [open, setOpen] = useState(false);
   const [width, setWidth] = useState(0);
@@ -126,112 +128,128 @@ const FormCombobox = ({
         );
 
         const combobox = (
-          <div ref={wrapRef} className="w-full min-w-0">
-            <Popover open={open} onOpenChange={handleOpenChange}>
-              <PopoverTrigger
-                disabled={disabled}
-                render={(props) => (
-                  <FormControl>
-                    <button
-                      {...props}
-                      type="button"
-                      role="combobox"
-                      title={displayValue || undefined}
-                      className={cn(
-                        // smaller side padding on phones so the text gets more room
-                        "flex h-[35px] w-full min-w-0 items-center justify-between rounded-[7px] border border-[#ACACAC] bg-[#DDDDDD] px-3 py-[6px] sm:px-5",
-                        "font-poppins text-[12px] font-normal tracking-[0%] text-black",
-                        "outline-none transition-colors focus-visible:border-[#585858]",
-                        "aria-invalid:border-red-500",
-                        "disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-100",
-                        className
-                      )}
-                    >
-                      {/* leading-[1.5] (not 100%) so letters like g, y, p are not clipped by truncate */}
-                      <span
+          <div className="flex w-full min-w-0 items-center gap-2">
+            {/* wrapRef wraps only the trigger, so the dropdown matches the trigger width (not trigger + button) */}
+            <div ref={wrapRef} className="min-w-0 flex-1">
+              <Popover open={open} onOpenChange={handleOpenChange}>
+                <PopoverTrigger
+                  disabled={disabled}
+                  render={(props) => (
+                    <FormControl>
+                      <button
+                        {...props}
+                        type="button"
+                        role="combobox"
+                        title={displayValue || undefined}
                         className={cn(
-                          "min-w-0 flex-1 truncate text-left leading-[1.5]",
-                          !displayValue && "text-[#585858]"
+                          // smaller side padding on phones so the text gets more room
+                          "flex h-[35px] w-full min-w-0 items-center justify-between rounded-[7px] border border-[#ACACAC] bg-[#DDDDDD] px-3 py-[6px] sm:px-5",
+                          "font-poppins text-[12px] font-normal tracking-[0%] text-black",
+                          "outline-none transition-colors focus-visible:border-[#585858]",
+                          "aria-invalid:border-red-500",
+                          "disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-100",
+                          className
                         )}
                       >
-                        {!options?.length
-                          ? "No options available"
-                          : displayValue || placeholder}
-                      </span>
-                      <Chevron className="ml-2 h-4 w-4 shrink-0 text-black" />
-                    </button>
-                  </FormControl>
-                )}
-              />
+                        {/* leading-[1.5] (not 100%) so letters like g, y, p are not clipped by truncate */}
+                        <span
+                          className={cn(
+                            "min-w-0 flex-1 truncate text-left leading-[1.5]",
+                            !displayValue && "text-[#585858]"
+                          )}
+                        >
+                          {!options?.length
+                            ? "No options available"
+                            : displayValue || placeholder}
+                        </span>
+                        <Chevron className="ml-2 h-4 w-4 shrink-0 text-black" />
+                      </button>
+                    </FormControl>
+                  )}
+                />
 
-              {!readonly && (
-                <PopoverContent
-                  align="start"
-                  sideOffset={4}
-                  className="max-w-[calc(100vw-1rem)] overflow-hidden rounded-[7px] border border-[#ACACAC] bg-[#DDDDDD] p-0 shadow-none"
-                  style={{ width: width ? `${width}px` : undefined }}
-                  onWheel={(e) => e.stopPropagation()}
-                >
-                  {/* If setSearch is passed, filtering is done by the parent (API),
-                      so cmdk's own local filtering is turned off */}
-                  <Command
-                    className="bg-transparent"
-                    shouldFilter={!setSearch}
+                {!readonly && (
+                  <PopoverContent
+                    align="start"
+                    sideOffset={4}
+                    className="max-w-[calc(100vw-1rem)] overflow-hidden rounded-[7px] border border-[#ACACAC] bg-[#DDDDDD] p-0 shadow-none"
+                    style={{ width: width ? `${width}px` : undefined }}
+                    onWheel={(e) => e.stopPropagation()}
                   >
-                    {searchable && (
-                      <CommandInput
-                        placeholder="Search..."
-                        className="font-poppins text-[12px]"
-                        onValueChange={(s) => setSearch?.(s)}
-                      />
-                    )}
-                    <CommandList
-                      className="max-h-[min(300px,50dvh)] overflow-y-auto"
-                      onWheel={(e) => e.stopPropagation()}
+                    {/* If setSearch is passed, filtering is done by the parent (API),
+                        so cmdk's own local filtering is turned off */}
+                    <Command
+                      className="bg-transparent"
+                      shouldFilter={!setSearch}
                     >
-                      <CommandEmpty className="py-3 text-center font-poppins text-[12px] text-[#585858]">
-                        {!options?.length
-                          ? "No options available"
-                          : "No results found."}
-                      </CommandEmpty>
-                      <CommandGroup className="p-0">
-                        {(options || [])
-                          .filter((o) => o && o.value && o.label)
-                          .map((option, index) => {
-                            const isSelected = option.value === currentValue;
-                            return (
-                              <CommandItem
-                                key={`${option.value}-${index}`}
-                                value={`${option.value}-${index}`}
-                                keywords={[option.label]}
-                                disabled={disabled || readonly}
-                                onSelect={() => {
-                                  setSelectedOption(option);
-                                  field.onChange(option.value);
-                                  onChange?.(option.value);
-                                  setOpen(false);
-                                  setSearch?.("");
-                                }}
-                                className={cn(
-                                  // min-h (not a fixed height) so long labels wrap instead of being cut
-                                  "flex min-h-[30px] h-auto cursor-pointer select-none items-center gap-[9px] rounded-none px-3 py-[6px] sm:px-5",
-                                  "whitespace-normal break-words font-poppins text-[12px] font-normal leading-[1.3] tracking-[0%] text-black",
-                                  "first:rounded-t-[7px] last:rounded-b-[7px]",
-                                  "data-[selected=true]:bg-[#C4C4C4] data-[selected=true]:text-black",
-                                  isSelected &&
-                                    "bg-[#A6A6A6] data-[selected=true]:bg-[#A6A6A6]"
-                                )}
-                              >
-                                {option.label}
-                              </CommandItem>
-                            );
-                          })}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              )}
-            </Popover>
+                      {searchable && (
+                        <CommandInput
+                          placeholder="Search..."
+                          className="font-poppins text-[12px]"
+                          onValueChange={(s) => setSearch?.(s)}
+                        />
+                      )}
+                      <CommandList
+                        className="max-h-[min(300px,50dvh)] overflow-y-auto"
+                        onWheel={(e) => e.stopPropagation()}
+                      >
+                        <CommandEmpty className="py-3 text-center font-poppins text-[12px] text-[#585858]">
+                          {!options?.length
+                            ? "No options available"
+                            : "No results found."}
+                        </CommandEmpty>
+                        <CommandGroup className="p-0">
+                          {(options || [])
+                            .filter((o) => o && o.value && o.label)
+                            .map((option, index) => {
+                              const isSelected = option.value === currentValue;
+                              return (
+                                <CommandItem
+                                  key={`${option.value}-${index}`}
+                                  value={`${option.value}-${index}`}
+                                  keywords={[option.label]}
+                                  disabled={disabled || readonly}
+                                  onSelect={() => {
+                                    setSelectedOption(option);
+                                    field.onChange(option.value);
+                                    onChange?.(option.value);
+                                    setOpen(false);
+                                    setSearch?.("");
+                                  }}
+                                  className={cn(
+                                    // min-h (not a fixed height) so long labels wrap instead of being cut
+                                    "flex min-h-[30px] h-auto cursor-pointer select-none items-center gap-[9px] rounded-none px-3 py-[6px] sm:px-5",
+                                    "whitespace-normal break-words font-poppins text-[12px] font-normal leading-[1.3] tracking-[0%] text-black",
+                                    "first:rounded-t-[7px] last:rounded-b-[7px]",
+                                    "data-[selected=true]:bg-[#C4C4C4] data-[selected=true]:text-black",
+                                    isSelected &&
+                                      "bg-[#A6A6A6] data-[selected=true]:bg-[#A6A6A6]"
+                                  )}
+                                >
+                                  {option.label}
+                                </CommandItem>
+                              );
+                            })}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                )}
+              </Popover>
+            </div>
+
+            {onAdd && (
+              <button
+                type="button"
+                aria-label={`Add ${label ?? "option"}`}
+                title={`Add ${label ?? "option"}`}
+                disabled={disabled || readonly}
+                onClick={onAdd}
+                className="flex size-[35px] shrink-0 items-center justify-center rounded-[7px] border border-[#ACACAC] bg-[#DDDDDD] text-black transition-colors hover:bg-[#C4C4C4] disabled:cursor-not-allowed disabled:bg-gray-100"
+              >
+                <Plus className="size-4" />
+              </button>
+            )}
           </div>
         );
 

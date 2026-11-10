@@ -47,7 +47,7 @@ print: [
   "hover:bg-[#A220A0] focus-visible:ring-2 focus-visible:ring-[#BD26B8]/40",
 ],
       cancel: [
-  "font-poppins w-full h-10 sm:h-[35px] sm:w-auto sm:min-w-[100px] md:min-w-[110px] lg:min-w-[120px]",
+  "font-poppins w-full h-10 sm:h-[35px] sm:w-auto sm:min-w-[100px] md:min-w-[110px] cursor-pointer lg:min-w-[120px]",
   "gap-[10px] rounded-[12px] px-4 sm:px-4 md:px-5",
   "bg-[#ACACAC] text-white",
   "text-[13px] sm:text-[14px] font-semibold uppercase leading-[100%] tracking-[0%]",
@@ -55,7 +55,7 @@ print: [
 ],
 save: [
   "font-poppins w-full h-10 sm:h-[35px] sm:w-auto sm:min-w-[110px] md:min-w-[120px] lg:min-w-[130px]",
-  "gap-[10px] rounded-[12px] px-4 sm:px-4 md:px-5",
+  "gap-[10px] rounded-[12px] px-4 sm:px-4 md:px-5 cursor-pointer",
   "bg-primary text-white",
   "text-[13px] sm:text-[14px] font-semibold uppercase leading-[100%] tracking-[0%]",
   "hover:bg-[#A823A2] focus-visible:ring-2 focus-visible:ring-[#F24DEB]/40",

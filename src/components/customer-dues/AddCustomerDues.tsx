@@ -6,16 +6,14 @@ import {
 } from "@/src/components/ui/tooltip";
 import { Pencil, Plus } from "lucide-react";
 import { useState } from "react";
-import { AddCustomerDialog, CustomerFormData } from "./AddCustomeDuesDialog";
+import { AddCustomerDialog } from "./AddCustomeDuesDialog";
 
 interface AddCustomerProps {
   isEdit: boolean;
   id?: string;
-  customer?: CustomerFormData;
-  onSubmit?: (data: CustomerFormData) => void;
 }
 
-const AddCustomer = ({ isEdit, id, customer, onSubmit }: AddCustomerProps) => {
+const AddCustomer = ({ isEdit, id }: AddCustomerProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -51,8 +49,6 @@ const AddCustomer = ({ isEdit, id, customer, onSubmit }: AddCustomerProps) => {
         onOpenChange={setIsDialogOpen}
         isEdit={isEdit}
         customerId={id}
-        customer={customer}
-        onSubmit={onSubmit}
       />
     </>
   );

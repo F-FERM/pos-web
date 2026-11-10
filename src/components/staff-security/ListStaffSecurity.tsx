@@ -151,6 +151,7 @@ const maskPin = (pin?: string) => (pin ? "*".repeat(pin.length) : "-");
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex min-w-0 flex-col gap-[5px]">
+                  
                   <Tooltip>
   <TooltipTrigger
     render={

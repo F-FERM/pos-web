@@ -22,3 +22,39 @@ export interface Privilege {
   createdAt: string;
   updatedAt: string;
 }
+
+
+export interface ListModulesWithSubmodulesResponse {
+  success: boolean;
+  message: string;
+  data: ModulesWithSubmodules[];
+  statusCode: number;
+}
+
+export interface ModulesWithSubmodules {
+  _id: string;
+  isDeleted: boolean;
+  createdBy: null;
+  identity: string;
+  label: string;
+  isActive: boolean;
+  isSystemGenerated: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  subModules: SubModule[];
+}
+
+interface SubModule {
+  _id: string;
+  isDeleted: boolean;
+  createdBy: null;
+  identity: string;
+  label: string;
+  moduleId: string;
+  isActive: boolean;
+  isSystemGenerated: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
