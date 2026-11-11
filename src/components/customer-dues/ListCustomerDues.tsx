@@ -34,6 +34,7 @@ import { useDeleteCustomer } from "@/src/api/customer/hooks/delete.hook";
 import { Customer } from "@/src/interfaces/customer/getAll.type";
 import CustomerTableSkeleton from "./CustomerSkeletonLoading";
 import { CustomerTag } from "@/src/interfaces/enums/CustomerTag";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 type TagFilter = "All" | CustomerTag;
 
@@ -294,7 +295,11 @@ function CustomerPage() {
                         <Eye className="size-4" />
                       </Button>
                       <AddCustomer isEdit id={c._id} />
-                      <Button
+
+                        {/* Delete */}
+    <Tooltip>
+      <TooltipTrigger render={<span className="inline-flex" />}>
+       <Button
                         type="button"
                         aria-label="Delete"
                         variant="deleteicon"
@@ -302,6 +307,10 @@ function CustomerPage() {
                       >
                         <Trash2 className="size-4" />
                       </Button>
+      </TooltipTrigger>
+      <TooltipContent>Delete</TooltipContent>
+    </Tooltip>
+                      
                     </div>
                   </TableCell>
                 </TableRow>

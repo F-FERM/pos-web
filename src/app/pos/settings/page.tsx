@@ -6,50 +6,82 @@ import CompanySettings from "@/src/components/company/ListCompany";
 import CounterSettings from "@/src/components/counter/ListCounter";
 import PrinterSettings from "@/src/components/printer/ListPrinter";
 import PrivilegeSettings from "@/src/components/privilege/ListPrivilege";
-import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import UnitSettings from "@/src/components/unit/ListUnit";
-import { useState } from "react";
+import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-
-const SETTINGS_TABS = [
-  "Company",
-  "Category",
-  "Unit",
-  "Printer",
-  "Counter",
-  "Brand",
-  "Privilege"
-] as const;
-type SettingsTab = (typeof SETTINGS_TABS)[number];
-
-const HEADERS: Record<SettingsTab, { title: string; subtitle: string }> = {
-  Company: {
+// One config for everything: label, header text and component per tab
+const TABS = {
+  company: {
+    label: "Company",
     title: "Company Management",
     subtitle:
       "Select your industry and business type to configure the system according to your supermarket’s retail operations.",
+    Component: CompanySettings,
   },
-  Category: {
+  category: {
+    label: "Category",
     title: "Category Management",
     subtitle: "Manage product categories for your grocery store",
+    Component: CategorySettings,
   },
-  Unit: { title: "Unit", subtitle: "Create and manage units used for products and inventory." },
-  Printer: {
+  unit: {
+    label: "Unit",
+    title: "Unit",
+    subtitle: "Create and manage units used for products and inventory.",
+    Component: UnitSettings,
+  },
+  printer: {
+    label: "Printer",
     title: "Printer Management",
     subtitle: "Configure receipt printers and assign them to counters.",
+    Component: PrinterSettings,
   },
-  Counter: {
+  counter: {
+    label: "Counter",
     title: "Counter Management",
     subtitle: "Manage billing counters and choose your default counter.",
+    Component: CounterSettings,
   },
-  Brand: { title: "Brand Management", subtitle: "Organize and manage brands assigned to your products." },
-  Privilege: { title: "Privilege Management", subtitle: "Manage user roles and permissions." },
-  
+  brand: {
+    label: "Brand",
+    title: "Brand Management",
+    subtitle: "Organize and manage brands assigned to your products.",
+    Component: BrandSettings,
+  },
+  privilege: {
+    label: "Privilege",
+    title: "Privilege Management",
+    subtitle: "Manage user roles and permissions.",
+    Component: PrivilegeSettings,
+  },
+} as const;
 
-};
+type TabKey = keyof typeof TABS;
 
-function SettingsPage() {
-  const [tab, setTab] = useState<SettingsTab>("Company");
-  const { title, subtitle } = HEADERS[tab];
+const TAB_KEYS = Object.keys(TABS) as TabKey[];
+const DEFAULT_TAB: TabKey = "company";
+
+const isTabKey = (value: string | null): value is TabKey =>
+  value !== null && value in TABS;
+
+function SettingsContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+
+  const param = searchParams.get("tab");
+  const tab: TabKey = isTabKey(param) ? param : DEFAULT_TAB;
+  const { title, subtitle, Component } = TABS[tab];
+
+  const handleTabChange = (value: string) => {
+    if (!isTabKey(value)) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", value);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   return (
     <div className="flex flex-col gap-3 lg:px-2">
@@ -66,31 +98,31 @@ function SettingsPage() {
 
         <Tabs
           value={tab}
-          onValueChange={(v) => setTab(v as SettingsTab)}
+          onValueChange={handleTabChange}
           className="min-w-0 lg:flex-none"
         >
           <TabsList
             variant="pills"
             className="h-auto flex-wrap justify-start gap-2 bg-transparent p-0 lg:justify-end"
           >
-            {SETTINGS_TABS.map((t) => (
-              <TabsTrigger key={t} variant="filter" value={t}>
-                {t}
+            {TAB_KEYS.map((key) => (
+              <TabsTrigger key={key} variant="filter" value={key}>
+                {TABS[key].label}
               </TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
       </section>
 
-      {tab === "Company" && <CompanySettings />}
-      {tab === "Category" && <CategorySettings />}
-      {tab === "Unit" && <UnitSettings />}
-      {tab === "Printer" && <PrinterSettings />}
-      {tab === "Counter" && <CounterSettings />}
-      {tab === "Brand" && <BrandSettings />}
- {tab === "Privilege" && <PrivilegeSettings />}     
+      <Component />
     </div>
   );
 }
 
-export default SettingsPage;
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <SettingsContent />
+    </Suspense>
+  );
+}

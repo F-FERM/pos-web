@@ -24,6 +24,7 @@ import User from "../../../public/icons/user.png";
 import { ListPrivilegeApi } from "@/src/api/privilege/api/getAll";
 import { useDeletePrivilege } from "@/src/api/privilege/hooks/delete.hook";
 import PrivilegeSkeletonLoading from "./PrivilegeSkeletonLoading";
+import { PaginationComponent } from "../common/PaginationComponent";
 
 interface PrivilegeItem {
   _id: string;
@@ -34,7 +35,8 @@ interface PrivilegeItem {
 
 
 export default function ListPrivilege() {
- 
+ const [currentPage, setCurrentPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [privilegeToDelete, setPrivilegeToDelete] = useState<{
     id: string;
@@ -46,11 +48,11 @@ export default function ListPrivilege() {
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["privilegeList"],
-    queryFn: () => ListPrivilegeApi({}),
+    queryFn: () => ListPrivilegeApi({ page: currentPage, limit: pageSize }),
   });
   const privileges: PrivilegeItem[] = data?.data ?? [];
 
-
+const totalCount = data?.pagination?.totalCount ?? 0;
 
 
   /* -------------------------------- delete --------------------------------- */
@@ -198,12 +200,23 @@ export default function ListPrivilege() {
           </TableBody>
         </Table>
       </div>
-
+<PaginationComponent
+  currentPage={currentPage}
+  totalItems={totalCount}
+  pageSizeOptions={[5, 10, 20, 50]}
+  showItemsInfo
+  itemsPerPage={pageSize}
+  onPageChange={setCurrentPage}
+  onItemsPerPageChange={(size) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  }}
+/>
       <ConfirmationDialog
         open={isConfirmDialogOpen}
         onOpenChange={handleConfirmDialogClose}
         onConfirm={handleConfirmDelete}
-        message={`Are you sure you want to delete role "${privilegeToDelete?.name}"?`}
+        message={`Are you sure you want to delete "${privilegeToDelete?.name}"?`}
         isPending={isPending}
       />
     </div>

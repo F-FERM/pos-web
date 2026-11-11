@@ -22,43 +22,52 @@ import { ListStaffByIdApi } from "@/src/api/staff/api/getById";
 import { useAddStaff } from "@/src/api/staff/hooks/create.hook";
 import { useEditStaff } from "@/src/api/staff/hooks/update.hook";
 import { ListPrivilegeApi } from "@/src/api/privilege/api/getAll";
+import { buildPhone, splitPhone } from "../helpers/SplitPhone";
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be at most 50 characters"),
- phone: z
-  .string()
-  .trim()
-  .min(1, "Phone is required")
-  .regex(/^\+?[\d\s-]+$/, "Please enter a valid phone number")
-  .refine(
-    (value) => {
-      const digits = value.replace(/\D/g, "");
-      return digits.length >= 6 && digits.length <= 17;
-    },
-    "Phone number must contain 6 to 17 digits"
-  ),
-  // optional: only validated when something is entered
-  email: z
-    .string()
-    .trim()
-    .optional()
-    .refine((v) => !v || /^\S+@\S+\.\S+$/.test(v), "Enter a valid email"),
-  designation: z.string().trim().min(1, "Designation is required"),
-  pin: z
-    .string()
-    .min(1, "PIN is required")
-    .regex(/^\d{4,6}$/, "PIN must be 4 to 6 digits"),
-  privilegeId: z.string().min(1, "Privilege is required"),
-});
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(2, "Name must be at least 2 characters")
+      .max(50, "Name must be at most 50 characters"),
+    countryCode: z.string(),
+    phone: z.string().trim().min(1, "Phone is required"),
+    email: z
+      .string()
+      .trim()
+      .optional()
+      .refine((v) => !v || /^\S+@\S+\.\S+$/.test(v), "Enter a valid email"),
+    designation: z.string().trim().min(1, "Designation is required"),
+    pin: z
+      .string()
+      .min(1, "PIN is required")
+      .regex(/^\d{4,6}$/, "PIN must be 4 to 6 digits"),
+    privilegeId: z.string().min(1, "Privilege is required"),
+  })
+  .superRefine((d, ctx) => {
+    if (!d.phone) return;
+    const valid =
+      d.countryCode === "+91"
+        ? d.phone.length === 10
+        : d.phone.length >= 6 && d.phone.length <= 15;
+    if (!valid) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["phone"],
+        message:
+          d.countryCode === "+91"
+            ? "Enter a valid 10-digit mobile number"
+            : "Enter a valid mobile number",
+      });
+    }
+  });
 
 export type StaffFormData = z.infer<typeof formSchema>;
-
+const DEFAULT_COUNTRY_CODE = "+91";
 const EMPTY: StaffFormData = {
   name: "",
+    countryCode: DEFAULT_COUNTRY_CODE,
   phone: "",
   email: "",
   designation: "",
@@ -93,7 +102,7 @@ export function AddStaffDialog({
 
   const { data: allPrivileges } = useQuery({
     queryKey: ["privilegeList", search],
-    queryFn: () => ListPrivilegeApi({ page: 1, limit: 100, search }),
+    queryFn: () => ListPrivilegeApi({ page: 1, limit: 100, search:search }),
     enabled: open,
   });
 
@@ -105,17 +114,17 @@ export function AddStaffDialog({
     form,
     onOpenChange,
   });
+  const countryCode = form.watch("countryCode");
 
   const handleSubmit = (data: StaffFormData) => {
     const email = data.email?.trim();
 
     const payload = {
       name: data.name,
-      phone: data.phone,
+       phone: buildPhone(data.countryCode, data.phone),
       designation: data.designation,
       privilegeId: data.privilegeId,
       pin: data.pin,
-      // send email only when filled
       ...(email ? { email } : {}),
     };
 
@@ -134,9 +143,11 @@ export function AddStaffDialog({
   useEffect(() => {
     if (open && isEdit && staffData?.data) {
       const s = staffData.data;
+      const { countryCode, phone } = splitPhone(s.phone ?? "");
       form.reset({
         name: s.name,
-        phone: s.phone ?? "",
+countryCode,
+      phone,
         email: s.email ?? "",
         designation: s.designation ?? "",
         pin: s.pin,
@@ -187,13 +198,14 @@ export function AddStaffDialog({
  
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 ">
              
-             <FormPhoneNumberInput
-                label="Phone"
-                name="phone"
-                placeholder="eg. 98765 43210"
-                value={form.watch("phone")}
-                required
-              />
+           <FormPhoneNumberInput
+  name="phone"
+  label="Phone"
+  placeholder="eg. 98765 43210"
+  required
+  defaultCountryCode={countryCode}
+  onChange={(_, code) => form.setValue("countryCode", code)}
+/>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             
