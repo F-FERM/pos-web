@@ -1,5 +1,4 @@
 
-import { GetCategoryRequest } from "@/src/interfaces/category/getAll.type";
 import { ListProductResponse } from "@/src/interfaces/product/getAll.type";
 import axiosInstance from "@/src/service/axios";
 import { AxiosError } from "axios";

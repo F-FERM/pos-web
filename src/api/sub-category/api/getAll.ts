@@ -1,14 +1,19 @@
 
-import { GetCategoryRequest } from "@/src/interfaces/category/getAll.type";
 import { ListSubCategoryResponse } from "@/src/interfaces/sub-category/getAll.type";
 import axiosInstance from "@/src/service/axios";
 import { AxiosError } from "axios";
 
-export const ListSubCategoryApi = async (params: GetCategoryRequest) => {
+export const ListSubCategoryApi = async (params: {
+    search?: string;
+  page?: number;
+  limit?: number;
+    categoryId?:string
+}) => {
   const {
     search,
     page,
     limit,
+categoryId,    
   
   } = params;
   try {
@@ -22,6 +27,9 @@ export const ListSubCategoryApi = async (params: GetCategoryRequest) => {
     }
     if (limit) {
       params.append("limit", limit.toString());
+    }
+     if (categoryId) {
+      params.append("categoryId", categoryId.toString());
     }
     
     const response = await axiosInstance.get<ListSubCategoryResponse>(

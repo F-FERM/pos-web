@@ -17,6 +17,8 @@ interface Data {
   basicInfo: BasicInfo;
   pricingAndTax: PricingAndTax;
   inventoryManagement: InventoryManagement;
+  expiryTracking: ExpiryTracking;
+  advancedInfo: AdvancedInfo;
   isWeighted: boolean;
   scaleUnit: string;
   tareWeight: number;
@@ -26,10 +28,33 @@ interface Data {
   __v: number;
 }
 
+interface AdvancedInfo {
+  serialNumber: string;
+  warrantyPeriod: string;
+  returnPeriod: string;
+  availableAtPos: boolean;
+  internalNotes: string;
+}
+
+interface ExpiryTracking {
+  enableExpiryTracking: boolean;
+  batches: Batch[];
+  expiryAlertBefore: string;
+  blockExpiredSales: boolean;
+}
+
+interface Batch {
+  batchNumber: string;
+  expiryDate: string;
+  batchQty: number;
+}
+
 interface InventoryManagement {
   enableStockTracking: boolean;
   openingStock: number;
   lowStockAlert: number;
+  reorderQuantity: number;
+  allowSellingWhenOutOfStock: boolean;
   description: string;
 }
 
@@ -37,6 +62,7 @@ interface PricingAndTax {
   purchasePrice: number;
   sellingPrice: number;
   vatRate: number;
+  mrp: number;
   profitMargin: number;
   sellingPriceBeforeVat: number;
   vatAmount: number;
@@ -45,13 +71,16 @@ interface PricingAndTax {
 
 interface BasicInfo {
   name: string;
+  aliasName: string;
   image: string;
   sku: string;
   barcode: string;
   categoryId: CategoryId;
+  subCategoryId: CategoryId;
   brandId: BrandId;
-  unitId: string;
+  unitId: UnitId;
   supplierId: SupplierId;
+  description: string;
 }
 
 interface SupplierId {
@@ -59,6 +88,12 @@ interface SupplierId {
   name: string;
   contactPerson: string;
   phone: string;
+}
+
+interface UnitId {
+  _id: string;
+  name: string;
+  symbol: string;
 }
 
 interface BrandId {

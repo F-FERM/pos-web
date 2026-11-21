@@ -1,31 +1,14 @@
 
-import { GetCategoryRequest } from "@/src/interfaces/category/getAll.type";
 import { ListBarcodeResponse } from "@/src/interfaces/product/getAllBarcode.type";
 import axiosInstance from "@/src/service/axios";
 import { AxiosError } from "axios";
 
-export const ListBarcodeApi = async (params: GetCategoryRequest) => {
-  const {
-    search,
-    page,
-    limit,
-  
-  } = params;
+export const ListBarcodeApi = async () => {
+ 
   try {
-    const params = new URLSearchParams();
-    if (search) {
-      params.append("search", search);
-    }
-   
-    if (page) {
-      params.append("page", page.toString());
-    }
-    if (limit) {
-      params.append("limit", limit.toString());
-    }
     
     const response = await axiosInstance.get<ListBarcodeResponse>(
-      `/product/generate-barcode?${params.toString()}`
+      `/product/generate-barcode`
     );
     return response.data;
   } catch (error) {
