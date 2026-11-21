@@ -10,6 +10,7 @@ import UnitSettings from "@/src/components/unit/ListUnit";
 import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import SubCategorySettings from "@/src/components/sub-category/ListSubCategory";
 
 // One config for everything: label, header text and component per tab
 const TABS = {
@@ -25,6 +26,12 @@ const TABS = {
     title: "Category Management",
     subtitle: "Manage product categories for your grocery store",
     Component: CategorySettings,
+  },
+   subcategory: {
+    label: "Sub Category",
+    title: "Sub Category Management",
+    subtitle: "Manage sub categories for your grocery store.",
+    Component: SubCategorySettings,
   },
   unit: {
     label: "Unit",
