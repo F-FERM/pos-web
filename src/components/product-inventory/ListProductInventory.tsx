@@ -9,6 +9,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { Barcode, Plus, Search, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import inventoryIcon from "../../../public/icons/product-inventory.png";
 import { AddProductDialog } from "./AddProductInventoryDialogue";
@@ -43,6 +44,7 @@ const isExpiring = (p: Product) => {
 };
 
 function ProductInventoryPage() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [categoryId, setCategoryId] = useState("");
@@ -283,7 +285,13 @@ function ProductInventoryPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
-                        <Button type="button" aria-label="View" variant="viewicon">
+                        <Button
+                          type="button"
+                          aria-label="Print Barcode Label"
+                          title="Print Barcode Label"
+                          variant="viewicon"
+                          onClick={() => router.push(`/pos/label-designer?productId=${p._id}`)}
+                        >
                           <Barcode className="size-4" />
                         </Button>
                         <AddProduct isEdit id={p._id} />
