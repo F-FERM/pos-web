@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import SubCategorySettings from "@/src/components/sub-category/ListSubCategory";
+import LoyaltySettings from "@/src/components/loyalty-setting/ListLoyaltySettings";
 
 // One config for everything: label, header text and component per tab
 const TABS = {
@@ -62,6 +63,12 @@ const TABS = {
     title: "Privilege Management",
     subtitle: "Manage user roles and permissions.",
     Component: PrivilegeSettings,
+  },
+   loyalty: {
+    label: "Loyalty",
+    title: "Loyalty Management",
+    subtitle: "Manage loyalty points, rewards, redemption rules, and customer loyalty programs.",
+    Component: LoyaltySettings,
   },
 } as const;
 
