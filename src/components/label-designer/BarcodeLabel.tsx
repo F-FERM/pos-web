@@ -4,52 +4,87 @@ type BarcodeLabelProps = {
   storeName: string;
   productName: string;
   barcode: string;
-  price: number;
-  barcodeImage: StaticImageData | string;
+  priceText: string;
+  barcodeSvg?: string;
+  barcodeImage?: StaticImageData | string;
+  widthMm: number;
+  heightMm: number;
+  mm?: boolean;
   className?: string;
 };
 
-const CURRENCY = "₹";
-
-// One sticker: 234 x 132, radius 10, padding 9/20, gap 10, bg #EFEFEF
 export default function BarcodeLabel({
   storeName,
   productName,
   barcode,
-  price,
+  priceText,
+  barcodeSvg,
   barcodeImage,
+  widthMm,
+  heightMm,
+  mm = false,
   className = "",
 }: BarcodeLabelProps) {
+  const svg = barcodeSvg?.replace("<svg", '<svg preserveAspectRatio="none"');
+
   return (
-  <div
-    className={`flex h-[132px] w-[234px] shrink-0 flex-col items-center justify-center gap-[6px] overflow-hidden rounded-[10px] bg-[#EFEFEF] px-5 py-[9px] font-poppins ${className}`}
-  >
-    <div className="flex w-full shrink-0 flex-col items-center gap-[2px] text-center">
-      <p className="w-full truncate text-[12px] font-semibold capitalize leading-[1.3] text-black">
-        {storeName}
-      </p>
-      <p className="w-full truncate text-[10px] font-normal capitalize leading-[1.3] text-[#585858]">
-        {productName}
-      </p>
-    </div>
-
-    <div className="flex shrink-0 flex-col items-center gap-[2px]">
-      <div className="relative h-[45px] w-[195px] shrink-0 overflow-hidden">
-        <Image
-          src={barcodeImage}
-          alt={`Barcode ${barcode}`}
-          fill
-          sizes="195px"
-          className="object-cover"
-        />
+    <div
+      className={`flex flex-col items-center justify-center overflow-hidden rounded-[6px] bg-[#EFEFEF] font-poppins print:rounded-none ${className}`}
+      style={{
+        containerType: "inline-size",
+        ...(mm
+          ? { width: `${widthMm}mm`, height: `${heightMm}mm` }
+          : { width: "100%", aspectRatio: `${widthMm} / ${heightMm}` }),
+        padding: "3% 6%",
+        gap: "2%",
+      }}
+    >
+      <div className="flex w-full shrink-0 flex-col items-center text-center">
+        <p
+          className="w-full truncate font-semibold capitalize leading-[1.25] text-black"
+          style={{ fontSize: "5.5cqw" }}
+        >
+          {storeName}
+        </p>
+        <p
+          className="w-full truncate capitalize leading-[1.25] text-[#585858] print:text-black"
+          style={{ fontSize: "4.5cqw" }}
+        >
+          {productName}
+        </p>
       </div>
-      <p className="text-[8px] font-normal leading-[1.3] text-black">{barcode}</p>
-    </div>
 
-    <p className="shrink-0 text-[10px] font-normal uppercase leading-[1.3] text-black">
-      Our Price: {CURRENCY}
-      {price}
-    </p>
-  </div>
-);
+      <div className="min-h-0 w-full flex-1">
+        {svg ? (
+          <div
+            className="h-full w-full [&_svg]:block [&_svg]:h-full [&_svg]:w-full"
+            dangerouslySetInnerHTML={{ __html: svg }}
+          />
+        ) : barcodeImage ? (
+          <div className="relative h-full w-full">
+            <Image
+              src={barcodeImage}
+              alt={`Barcode ${barcode}`}
+              fill
+              sizes="240px"
+              className="object-fill"
+            />
+          </div>
+        ) : null}
+      </div>
+
+      <p
+        className="shrink-0 leading-[1.2] tracking-[0.1em] text-black"
+        style={{ fontSize: "3.6cqw" }}
+      >
+        {barcode}
+      </p>
+      <p
+        className="shrink-0 font-semibold uppercase leading-[1.2] text-black"
+        style={{ fontSize: "4.5cqw" }}
+      >
+        {priceText}
+      </p>
+    </div>
+  );
 }

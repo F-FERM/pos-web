@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Contact, FileText, Mail, MapPin, Phone, Plus, Search, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { default as activeSuppliesIcon, default as supplierIcon } from "../../../public/icons/supplier1.png";
+import  supplierIcon from "../../../public/icons/supplier1.png";
 import vendorPayableIcon from "../../../public/icons/supplier2.png";
 import pendingCreditIcon from "../../../public/icons/supplier3.png";
 import { ConfirmationDialog } from "../common/ConfirmationDialogue";
@@ -19,6 +19,7 @@ import { PaginationComponent } from "../common/PaginationComponent";
 import ErrorHandling from "../Error/ErrorHandling";
 import AddSupplier from "./AddSupplierDirectory";
 import { AddSupplierDialog } from "./AddSupplierDirectoryDialogue";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const CURRENCY = "₹";
 
@@ -46,7 +47,7 @@ function SupplierPage() {
     {
       label: "Total Active Supplies",
       value: String(totalCount),
-      icon: activeSuppliesIcon,
+      icon: supplierIcon,
       card: "border-[#F24DEB] bg-[#FF00F50D]",
       text: "text-primary",
     },
@@ -160,9 +161,16 @@ function SupplierPage() {
 
                 <div className="flex shrink-0 items-center gap-1">
                   <AddSupplier isEdit id={s._id} />
-                  <Button type="button" aria-label="Delete" variant="deleteicon" onClick={() => setSupplierToDelete(s)}>
+                    {/* Delete */}
+    <Tooltip>
+      <TooltipTrigger render={<span className="inline-flex" />}>
+        <Button type="button" aria-label="Delete" variant="deleteicon" onClick={() => setSupplierToDelete(s)}>
                     <Trash2 className="size-4" />
                   </Button>
+      </TooltipTrigger>
+      <TooltipContent>Delete</TooltipContent>
+    </Tooltip>
+                 
                 </div>
               </div>
 

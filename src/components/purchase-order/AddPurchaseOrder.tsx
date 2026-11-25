@@ -1,22 +1,15 @@
 import { Button } from "@/src/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/src/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/src/components/ui/tooltip";
 import { Pencil, Plus } from "lucide-react";
 import { useState } from "react";
-import { AddPurchaseOrderDialog, PurchaseOrderFormData } from "./AddPurchaseOrderDialogue";
-
+import { AddPurchaseOrderDialog } from "./AddPurchaseOrderDialogue";
 
 interface AddPurchaseOrderProps {
   isEdit: boolean;
   id?: string;
-  order?: PurchaseOrderFormData;
-  onSubmit?: (data: PurchaseOrderFormData) => void;
 }
 
-const AddPurchaseOrder = ({ isEdit, id, order, onSubmit }: AddPurchaseOrderProps) => {
+const AddPurchaseOrder = ({ isEdit, id }: AddPurchaseOrderProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -52,8 +45,6 @@ const AddPurchaseOrder = ({ isEdit, id, order, onSubmit }: AddPurchaseOrderProps
         onOpenChange={setIsDialogOpen}
         isEdit={isEdit}
         orderId={id}
-        order={order}
-        onSubmit={onSubmit}
       />
     </>
   );
